@@ -1,0 +1,16 @@
+[package]
+name = "cc-web"
+description = "CalendarCraft: Einstieg für die Web-App (Trunk) und die Desktop-WebView."
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish = false
+
+[[bin]]
+name = "cc-web"
+path = "src/main.rs"
+
+[dependencies]
+cc-ui = { path = "../ui" }
+leptos.workspace = true
+console_error_panic_hook.workspace = true

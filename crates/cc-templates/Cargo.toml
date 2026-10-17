@@ -1,0 +1,9 @@
+[package]
+name = "cc-templates"
+description = "CalendarCraft: Kalenderformen als Bausteine."
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish = false
+
+[dependencies]

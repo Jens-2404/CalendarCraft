@@ -1,0 +1,78 @@
+/* Nur logische Eigenschaften (inline/block statt left/right), damit
+   dir="rtl" die gesamte Oberfläche spiegelt. */
+
+:root {
+  --bg: #f7f6f2;
+  --surface: #ffffff;
+  --text: #1d1d1b;
+  --muted: #6b6a66;
+  --accent: #1f4e8c;
+  --border: #dddad2;
+  color-scheme: light dark;
+  font-family: "Noto Sans", "Noto Sans Hebrew", system-ui, sans-serif;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1b1b1a;
+    --surface: #252523;
+    --text: #ecebe6;
+    --muted: #a3a29c;
+    --accent: #8db4ee;
+    --border: #3a3936;
+  }
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.bar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding-block: 0.75rem;
+  padding-inline: 1rem;
+  border-block-end: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.bar h1 { font-size: 1.2rem; margin: 0; }
+.host { color: var(--muted); font-size: 0.85rem; }
+.langs { margin-inline-start: auto; display: flex; gap: 0.25rem; }
+
+.langs button {
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text);
+  padding-block: 0.3rem;
+  padding-inline: 0.7rem;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.langs button.active { background: var(--accent); color: var(--surface); border-color: var(--accent); }
+
+.panes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
+  gap: 1rem;
+  padding: 1rem;
+}
+
+.pane {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.pane h2 { margin-block-start: 0; font-size: 1.05rem; }
+label { display: flex; flex-direction: column; gap: 0.35rem; }
+input { font: inherit; padding: 0.35rem; max-inline-size: 14rem; }
+.result { font-size: 1.4rem; min-block-size: 2rem; }
+.muted { color: var(--muted); }

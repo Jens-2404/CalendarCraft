@@ -1,0 +1,41 @@
+[workspace]
+resolver = "3"
+members = [
+    "crates/*",
+    "apps/ui",
+    "apps/web",
+    "apps/desktop/src-tauri",
+    "apps/cli",
+    "spikes/render-typst",
+    "spikes/render-krilla",
+    "spikes/typst-wasm",
+]
+
+[workspace.package]
+version = "0.0.1"
+edition = "2024"
+# Private Phase: noch keine Lizenz. Vor der Veröffentlichung auf
+# "MIT OR Apache-2.0" setzen (siehe docs/05-roadmap.md, Phase 6).
+license = "LicenseRef-Proprietary"
+
+[workspace.dependencies]
+cc-calendar = { path = "crates/cc-calendar" }
+icu_calendar = "2.3"
+leptos = { version = "0.8", features = ["csr"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+wasm-bindgen = "0.2"
+wasm-bindgen-futures = "0.4"
+js-sys = "0.3"
+web-sys = "0.3"
+console_error_panic_hook = "0.1"
+
+[profile.release]
+lto = true
+codegen-units = 1
+opt-level = "s"
+
+# Desktop und CLI dürfen schneller statt kleiner sein.
+[profile.release-native]
+inherits = "release"
+opt-level = 3

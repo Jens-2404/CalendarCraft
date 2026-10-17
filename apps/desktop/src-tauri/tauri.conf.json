@@ -1,0 +1,32 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "CalendarCraft",
+  "version": "0.0.1",
+  "identifier": "de.calendarcraft.desktop",
+  "build": {
+    "beforeDevCommand": { "script": "trunk serve", "cwd": "../../web", "wait": false },
+    "beforeBuildCommand": { "script": "trunk build --release", "cwd": "../../web" },
+    "devUrl": "http://localhost:1420",
+    "frontendDist": "../../web/dist"
+  },
+  "app": {
+    "withGlobalTauri": true,
+    "windows": [
+      { "label": "main", "title": "CalendarCraft", "width": 1100, "height": 750 }
+    ],
+    "security": {
+      "csp": "default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; connect-src ipc: http://ipc.localhost"
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ]
+  }
+}

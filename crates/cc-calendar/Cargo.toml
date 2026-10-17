@@ -1,0 +1,11 @@
+[package]
+name = "cc-calendar"
+description = "CalendarCraft: Kalendersysteme und Datumsumrechnung."
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish = false
+
+[dependencies]
+icu_calendar.workspace = true
+serde.workspace = true

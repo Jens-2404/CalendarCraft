@@ -1,0 +1,9 @@
+/target
+/apps/web/dist
+/apps/desktop/src-tauri/gen
+*.pdb
+
+# Persönliche Dateien, nicht Teil des Projekts
+/Download/
+*.export
+/.claude/settings.local.json

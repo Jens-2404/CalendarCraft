@@ -1,0 +1,18 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "web",
+      "runtimeExecutable": "trunk",
+      "runtimeArgs": ["serve", "--port", "1420"],
+      "cwd": "apps/web",
+      "port": 1420
+    },
+    {
+      "name": "spike-typst-wasm",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["-m", "http.server", "8091", "-d", "spikes/typst-wasm/dist"],
+      "port": 8091
+    }
+  ]
+}

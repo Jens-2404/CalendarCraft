@@ -1,0 +1,17 @@
+[package]
+name = "cc-ui"
+description = "CalendarCraft: gemeinsame Leptos-Oberfläche für Browser und Desktop."
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish = false
+
+[dependencies]
+cc-calendar.workspace = true
+leptos.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+wasm-bindgen.workspace = true
+wasm-bindgen-futures.workspace = true
+js-sys.workspace = true
+web-sys = { workspace = true, features = ["Document", "Element", "HtmlElement", "Window"] }

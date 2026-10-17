@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8" />
+    <title>Spike Typst im Browser</title>
+    <link data-trunk rel="rust" data-bin="spike-typst-wasm" data-wasm-opt="z" />
+    <!-- Nur lokal: Windows-Schrift für den Test, wird nicht eingecheckt. -->
+    <link data-trunk rel="copy-file" href="local-fonts/times.ttf" />
+    <style>
+      body { font-family: system-ui, sans-serif; margin: 1rem; }
+      #out { border: 1px solid #ccc; max-width: 100%; }
+    </style>
+  </head>
+  <body>
+    <pre id="log">lädt …</pre>
+    <div id="page"></div>
+  </body>
+</html>
