@@ -1,9 +1,13 @@
 [package]
 name = "cc-holidays"
-description = "CalendarCraft: Feiertags-Regel-Engine und Regeldaten."
+description = "CalendarCraft: Feiertage, Wochenabschnitte und Tagesinformationen."
 version.workspace = true
 edition.workspace = true
 license.workspace = true
 publish = false
 
 [dependencies]
+cc-calendar.workspace = true
+
+[dev-dependencies]
+serde_json.workspace = true

@@ -60,6 +60,30 @@ Offen dazu:
 3. Das PDF ist ein Werk der Gemeinde. Für die private Prüfung nutze ich es nur lokal (nicht in Git). Vor einer Veröffentlichung sollte die Gemeinde zustimmen.
 4. Das Beispiel nutzt kostenpflichtige Schriften (Favorit). CalendarCraft liefert freie Schriften mit, das Aussehen weicht daher leicht ab.
 
+## Prototyp Gemeindekalender (18.10.2026)
+
+Mit `cc-cli gemeindekalender --year 5787 --out kalender.pdf` entsteht ein Kalender im Aufbau Ihres Frankfurter Beispiels (A4 quer, 2 Seiten, eine Spalte je Monat). Er läuft in unter 0,2 Sekunden und rechnet Feiertage, Wochenabschnitte und Zeiten selbst.
+
+Geprüft:
+
+| Prüfung | Ergebnis |
+|---|---|
+| Feiertage, Fasttage, Wochenabschnitte gegen Hebcal, 251 Jahre (5650–5900) | 0 Abweichungen |
+| Gedruckte Zeiten Ihres 5784-PDFs (Kerzen, Schabbatende, Fasten, Chanukka, Chametz, Mitternacht) | 145 verglichen, 135 exakt, 10 um 1 Minute abweichend |
+| Kerzenzünden 5784 und 5787 gegen Hebcal | 118 verglichen, alle ±1 Minute |
+
+Die Frankfurter Methode ist aus den gedruckten Zeiten abgeleitet: Kerzenzünden 30 Minuten vor Sonnenuntergang (gerundet), Schabbatende bei 8,5° (aufgerundet), Fastenbeginn bei 16,1°, Fastenende und Chanukka-Lichter bei 7,083° (aufgerundet), Chametz-Zeiten nach 16,1° (abgerundet).
+
+Unterschiede zum Vorbild und offene Punkte:
+
+1. Kopfbereich: Logo und Adresse der Gemeinde fehlen (Platzhaltertext). Ein Gemeindeprofil lässt sich als JSON übergeben (`--profile`).
+2. Schriften: Arial und Times New Roman von Windows statt der Schriften des Vorbilds; auf anderen Systemen fehlen sie noch.
+3. Fußzeile von Seite 2 im Vorbild: „Staatliche Feiertage 2024: 7. April, 10. April, 1. Mai, 18. Mai, 29. Mai, 8. Juni“. Für Hessen gelten 29. März, 1. April, 1. Mai, 9. Mai, 20. Mai und 30. Mai; das Vorbild scheint hier einen Fehler zu enthalten. Der Prototyp gibt die hessischen Daten aus.
+4. Im Vorbild steht am 3. Mai 2024 „Jom HaHazala“; das ist nicht berechnet, weil unklar ist, nach welcher Regel.
+5. Nur Frankfurt, Diaspora, Hessen. Andere Orte, Zeitzonen außerhalb Mitteleuropas, Israel-Regeln und Hochformat folgen.
+
+Ausgaben des Prototyps liegen in `ausgabe/` (von Git ausgeschlossen).
+
 ## Stand Phase 0 (17.10.2026)
 
 | Aufgabe | Stand |

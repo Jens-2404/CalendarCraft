@@ -1,3 +1,7 @@
-//! Kalenderformen als Bausteine.
+//! Kalenderformen als Bausteine: Tagesdaten mit Zeiten, Vorlagen.
 //!
-//! Noch leer: wird in einer späteren Phase gefüllt (siehe docs/05-roadmap.md).
+//! Stand Prototyp: Vorlage "Gemeindekalender" (siehe
+//! docs/07-vorlage-gemeindekalender.md).
+
+pub mod gemeinde;
+pub mod times;

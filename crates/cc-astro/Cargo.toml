@@ -1,9 +1,11 @@
 [package]
 name = "cc-astro"
-description = "CalendarCraft: Sonnen- und Mondberechnungen, Zmanim."
+description = "CalendarCraft: Sonnenstand, Sonnenauf- und -untergang, Zmanim."
 version.workspace = true
 edition.workspace = true
 license.workspace = true
 publish = false
 
 [dependencies]
+cc-calendar.workspace = true
+

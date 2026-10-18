@@ -1,9 +1,16 @@
 [package]
 name = "cc-render"
-description = "CalendarCraft: Ausgabe als SVG, PDF und PNG."
+description = "CalendarCraft: Ausgabe als PDF, SVG und PNG über Typst (ADR-002)."
 version.workspace = true
 edition.workspace = true
 license.workspace = true
 publish = false
 
 [dependencies]
+# Exakte Version: Typst ändert seine Programmierschnittstelle zwischen Versionen.
+typst = "=0.15.1"
+typst-layout = "=0.15.1"
+typst-pdf = "=0.15.1"
+typst-svg = "=0.15.1"
+typst-render = "=0.15.1"
+typst-assets = { version = "=0.15.1", features = ["fonts"] }

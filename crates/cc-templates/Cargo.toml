@@ -1,9 +1,15 @@
 [package]
 name = "cc-templates"
-description = "CalendarCraft: Kalenderformen als Bausteine."
+description = "CalendarCraft: Kalenderformen als Bausteine (Tagesdaten, Zeiten, Vorlagen)."
 version.workspace = true
 edition.workspace = true
 license.workspace = true
 publish = false
 
 [dependencies]
+cc-calendar.workspace = true
+cc-holidays = { path = "../cc-holidays" }
+cc-astro = { path = "../cc-astro" }
+
+[dev-dependencies]
+serde_json.workspace = true

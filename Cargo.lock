@@ -455,6 +455,9 @@ dependencies = [
 [[package]]
 name = "cc-astro"
 version = "0.0.1"
+dependencies = [
+ "cc-calendar",
+]
 
 [[package]]
 name = "cc-calendar"
@@ -469,6 +472,9 @@ name = "cc-cli"
 version = "0.0.1"
 dependencies = [
  "cc-calendar",
+ "cc-render",
+ "cc-templates",
+ "serde_json",
 ]
 
 [[package]]
@@ -485,6 +491,10 @@ dependencies = [
 [[package]]
 name = "cc-holidays"
 version = "0.0.1"
+dependencies = [
+ "cc-calendar",
+ "serde_json",
+]
 
 [[package]]
 name = "cc-i18n"
@@ -505,10 +515,24 @@ version = "0.0.1"
 [[package]]
 name = "cc-render"
 version = "0.0.1"
+dependencies = [
+ "typst",
+ "typst-assets",
+ "typst-layout",
+ "typst-pdf",
+ "typst-render",
+ "typst-svg",
+]
 
 [[package]]
 name = "cc-templates"
 version = "0.0.1"
+dependencies = [
+ "cc-astro",
+ "cc-calendar",
+ "cc-holidays",
+ "serde_json",
+]
 
 [[package]]
 name = "cc-ui"
