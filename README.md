@@ -41,6 +41,35 @@ Kommandozeile:
 cargo run -p cc-cli -- convert 2026-09-12
 ```
 
+Kalender als PDF erzeugen (Zeiten für Frankfurt am Main, Feiertage Hessen):
+
+```bash
+cargo run --release -p cc-cli -- jahreskalender --year 2027 --out ausgabe/Jahreskalender_2027.pdf
+```
+
+```bash
+cargo run --release -p cc-cli -- gemeindekalender --year 5787 --out ausgabe/Kalender_5787.pdf
+```
+
+Gestaltung (für beide Kalender):
+
+| Option | Wirkung |
+|---|---|
+| `--format a4` | Papierformat: a0–a5, letter, legal, tabloid oder eigene Maße wie `300x200` (mm); Standard a4 quer |
+| `--hoch` | Hochformat |
+| `--schrift "Segoe UI"` | Schriftfamilie des Inhalts (jede installierte Schrift) |
+| `--titelschrift "Times New Roman"` | Schrift der Monatsköpfe |
+| `--schriftgroesse 1.2` | alle Schriften 20 % größer (0.5 bis 3.0) |
+| `--png` | zusätzlich ein Bild je Seite |
+
+Nur Jahreskalender: `--seiten 1` (alle Monate auf einer Seite) oder `2` (Standard), `--start-monat 7` (z. B. Juli bis Juni), `--titel "Text"`.
+
+Beispiel Hochformat mit größerer Schrift:
+
+```bash
+cargo run --release -p cc-cli -- jahreskalender --year 2027 --hoch --schrift "Segoe UI" --schriftgroesse 1.15 --out ausgabe/Jahreskalender_2027_hoch.pdf
+```
+
 Tests:
 
 ```bash

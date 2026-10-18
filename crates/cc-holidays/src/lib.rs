@@ -145,6 +145,26 @@ pub fn year_days(year: i32) -> Vec<DayInfo> {
     days
 }
 
+/// Die Tage `from..=to` (Tageszahlen), auch über Jahresgrenzen des
+/// jüdischen Kalenders hinweg, z. B. für einen gregorianischen Jahreskalender.
+pub fn days_between(from: Day, to: Day) -> Vec<DayInfo> {
+    let first_year = cc_calendar::hebrew_from_day(from).year;
+    let last_year = cc_calendar::hebrew_from_day(to).year;
+    let mut out: Vec<DayInfo> = Vec::new();
+    for y in first_year..=last_year + 1 {
+        for d in year_days(y) {
+            // Erew Rosch HaSchana steht am Ende des einen und am Anfang des
+            // nächsten Jahres; die erste Fassung (mit Parascha) bleibt.
+            if out.last().is_some_and(|l| l.day >= d.day) {
+                continue;
+            }
+            out.push(d);
+        }
+    }
+    out.retain(|d| (from..=to).contains(&d.day));
+    out
+}
+
 struct Ctx {
     year: i32,
     start: Day,
@@ -440,6 +460,26 @@ mod tests {
             }
         }
         assert!(find(&days, (2024, 9, 28)).first_selichot);
+    }
+
+    #[test]
+    fn gregorian_year_2027_spans_two_jewish_years() {
+        let from = cc_calendar::day_from_gregorian(2027, 1, 1).unwrap();
+        let to = cc_calendar::day_from_gregorian(2027, 12, 31).unwrap();
+        let days = days_between(from, to);
+        assert_eq!(days.len(), 365);
+        assert!(days.windows(2).all(|w| w[1].day == w[0].day + 1));
+        let names = |g| {
+            find(&days, g)
+                .holidays
+                .iter()
+                .map(|h| h.name_de.clone())
+                .collect::<Vec<_>>()
+        };
+        assert_eq!(names((2027, 3, 23)), ["Purim"]); // 5787
+        assert_eq!(names((2027, 10, 1)), ["Erew Rosch Haschana"]);
+        assert_eq!(names((2027, 10, 2)), ["1. Tag Rosch Haschana"]); // 5788
+        assert_eq!(names((2027, 10, 11)), ["Jom Kippur"]);
     }
 
     #[test]

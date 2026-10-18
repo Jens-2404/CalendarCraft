@@ -61,6 +61,19 @@ impl Fonts {
         self
     }
 
+    /// Alle Schriften aus den Systemordnern (inkl. vom Benutzer installierter
+    /// Schriften unter Windows). Dauert je nach Anzahl etwas länger.
+    pub fn with_all_system(self) -> Self {
+        self.with_system(&[""])
+    }
+
+    /// Ist eine Schriftfamilie geladen (ohne Beachtung der Groß-/Kleinschreibung)?
+    pub fn has_family(&self, family: &str) -> bool {
+        self.0
+            .iter()
+            .any(|f| f.info().family.eq_ignore_ascii_case(family))
+    }
+
     /// Schriftfamilien (für Fehlersuche).
     pub fn families(&self) -> Vec<String> {
         let mut f: Vec<String> = self.0.iter().map(|f| f.info().family.clone()).collect();
@@ -74,6 +87,9 @@ fn system_font_dirs() -> Vec<std::path::PathBuf> {
     let mut v = Vec::new();
     if cfg!(windows) {
         v.push("C:/Windows/Fonts".into());
+        if let Some(local) = std::env::var_os("LOCALAPPDATA") {
+            v.push(std::path::PathBuf::from(local).join("Microsoft/Windows/Fonts"));
+        }
     } else if cfg!(target_os = "macos") {
         v.push("/System/Library/Fonts".into());
         v.push("/Library/Fonts".into());

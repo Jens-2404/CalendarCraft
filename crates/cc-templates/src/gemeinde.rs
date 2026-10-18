@@ -7,45 +7,14 @@ use std::fmt::Write as _;
 
 use cc_astro::{Location, Profile};
 use cc_calendar::{Day, gregorian_from_day, hebrew_year_days};
-use cc_holidays::{Class, DayInfo, RoshChodesh, german, month, year_days};
+use cc_holidays::{DayInfo, german, year_days};
 
-use crate::times::{DayTimes, MainTime, day_times, fmt};
-
-/// Seitenformat in Millimetern, quer.
-#[derive(Debug, Clone, Copy, PartialEq)]
-pub struct Paper {
-    pub width_mm: f64,
-    pub height_mm: f64,
-}
-
-impl Paper {
-    pub const A4: Paper = Paper {
-        width_mm: 297.0,
-        height_mm: 210.0,
-    };
-    pub const A3: Paper = Paper {
-        width_mm: 420.0,
-        height_mm: 297.0,
-    };
-    pub const A2: Paper = Paper {
-        width_mm: 594.0,
-        height_mm: 420.0,
-    };
-    pub const LETTER: Paper = Paper {
-        width_mm: 279.4,
-        height_mm: 215.9,
-    };
-
-    pub fn by_name(name: &str) -> Option<Paper> {
-        Some(match name.to_ascii_lowercase().as_str() {
-            "a4" => Self::A4,
-            "a3" => Self::A3,
-            "a2" => Self::A2,
-            "letter" => Self::LETTER,
-            _ => return None,
-        })
-    }
-}
+use crate::common::{
+    GREG_MONTHS, LEGEND, TYPST_TIME_FN, WD_DE, WD_HE, jewish_fill, jewish_row, month_name_de,
+    pessach_footnote, q,
+};
+pub use crate::common::{Paper, Style};
+use crate::times::{DayTimes, day_times};
 
 /// Texte des Kopfbereichs (Gemeindeprofil).
 #[derive(Debug, Clone, PartialEq)]
@@ -74,6 +43,7 @@ impl Default for CommunityProfile {
 #[derive(Debug, Clone)]
 pub struct Options {
     pub paper: Paper,
+    pub style: Style,
     pub profile: CommunityProfile,
     pub location: Location,
     pub zmanim: Profile,
@@ -83,62 +53,12 @@ impl Default for Options {
     fn default() -> Self {
         Self {
             paper: Paper::A4,
+            style: Style::default(),
             profile: CommunityProfile::default(),
             location: Location::frankfurt(),
             zmanim: Profile::frankfurt(),
         }
     }
-}
-
-const GREG_MONTHS: [&str; 12] = [
-    "Januar",
-    "Februar",
-    "März",
-    "April",
-    "Mai",
-    "Juni",
-    "Juli",
-    "August",
-    "September",
-    "Oktober",
-    "November",
-    "Dezember",
-];
-const WD_DE: [&str; 7] = ["So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"];
-const WD_HE: [&str; 7] = ["ראשון", "שני", "שלישי", "רביעי", "חמישי", "שישי", "שבת"];
-
-fn month_name_de(code: &str, leap: bool) -> &'static str {
-    match code {
-        month::TISHREI => "Tischrei",
-        month::CHESHVAN => "Cheschwan",
-        month::KISLEV => "Kislew",
-        month::TEVET => "Tewet",
-        month::SHEVAT => "Schwat",
-        month::ADAR_I => "Adar I",
-        month::ADAR if leap => "Adar II",
-        month::ADAR => "Adar",
-        month::NISAN => "Nissan",
-        month::IYAR => "Ijar",
-        month::SIVAN => "Siwan",
-        month::TAMMUZ => "Tammus",
-        month::AV => "Aw",
-        month::ELUL => "Elul",
-        _ => "?",
-    }
-}
-
-/// Typst-Zeichenkette mit Anführungszeichen.
-fn q(s: &str) -> String {
-    let mut out = String::from("\"");
-    for c in s.chars() {
-        match c {
-            '\\' => out.push_str("\\\\"),
-            '"' => out.push_str("\\\""),
-            _ => out.push(c),
-        }
-    }
-    out.push('"');
-    out
 }
 
 /// Eine Monatsspalte: Kopf und die Indizes der Tage.
@@ -195,129 +115,30 @@ fn columns(days: &[DayInfo]) -> Vec<Column> {
     cols
 }
 
-fn fill_for(d: &DayInfo) -> Option<&'static str> {
-    if d.is_shabbat() {
-        return Some("#9fc4ec");
-    }
-    let has = |c: Class| d.holidays.iter().any(|h| h.class == c);
-    if d.yom_tov {
-        Some("#c9d8f2")
-    } else if has(Class::CholHamoed) || has(Class::Chanukka) || has(Class::Purim) {
-        Some("#dedede")
-    } else if has(Class::Erev) {
-        Some("#eceaf7")
-    } else {
-        None
-    }
-}
-
-fn row(d: &DayInfo, t: &DayTimes, has_taanit_bechorot: bool) -> String {
-    let mut names: Vec<String> = Vec::new();
-    let mut sub = String::new();
-    for h in &d.holidays {
-        if h.name_de == "Taanit Bechorot" {
-            continue;
-        }
-        names.push(h.name_de.clone());
-    }
-    let centered = d.is_shabbat() && d.parasha.is_some();
-    if let Some(p) = d.parasha {
-        // Schabbat: Parascha in der Mitte; Feiertage und besondere Schabbatot
-        // stehen als kleine Zeile darunter
-        sub = names.join(" · ");
-        names = vec![p.name_de()];
-    }
-    if let Some(s) = d.special_shabbat {
-        sub = if sub.is_empty() {
-            s.to_string()
-        } else {
-            format!("{s} · {sub}")
-        };
-    }
-    if d.yizkor {
-        sub = if sub.is_empty() {
-            "Jiskor".into()
-        } else {
-            format!("{sub} · Jiskor")
-        };
-    }
-    if d.first_selichot {
-        sub = if sub.is_empty() {
-            "Erste Slichot".into()
-        } else {
-            format!("{sub} · Erste Slichot")
-        };
-    }
-    // Zeile oben (rot, klein): Fasten- und Chametz-Zeiten
-    let mut top = String::new();
-    let mut add = |s: String| {
-        if !top.is_empty() {
-            top.push_str("  ");
-        }
-        top.push_str(&s);
-    };
-    if !has_taanit_bechorot {
-        match (t.fast_begin, t.fast_end) {
-            (Some(b), Some(e)) => add(format!("FB {} FE {}", fmt(b), fmt(e))),
-            (Some(b), None) => add(format!("FB {}", fmt(b))),
-            (None, Some(e)) => add(format!("FE {}", fmt(e))),
-            _ => {}
-        }
-    }
-    if let Some(b) = t.bdikat_chametz {
-        add(format!("Bdikat Chametz {}", fmt(b)));
-    }
-    if let Some(c) = t.chametz_eating_ends {
-        add(format!("Chametz Verbot {} *", fmt(c)));
-    }
-    let omer = d.omer.map(|n| format!("{n} L’O")).unwrap_or_default();
-    let (time, tk, candle) = match t.main {
-        Some(MainTime::Candles(m)) | Some(MainTime::SecondNightCandles(m)) => {
-            (fmt(m), "over", false)
-        }
-        Some(MainTime::End(m)) => (fmt(m), "under", false),
-        Some(MainTime::ChanukkaCandles(m)) => (fmt(m), "", true),
-        None => (String::new(), "", false),
-    };
-    let rc = match d.rosh_chodesh {
-        Some(RoshChodesh::Single) => "●",
-        Some(RoshChodesh::First) => "①",
-        Some(RoshChodesh::Second) => "②",
-        None => "",
-    };
-    let bold = d.yom_tov
-        || d.holidays.iter().any(|h| {
-            matches!(
-                h.class,
-                Class::Fast | Class::Purim | Class::Minor | Class::Modern | Class::YomTov
-            )
-        });
-    let mut name = names.join(" · ");
-    if name.is_empty() && !omer.is_empty() {
-        name = String::new();
-    }
-    let fill = fill_for(d).map_or("none".to_string(), |c| format!("rgb({})", q(c)));
+fn row(d: &DayInfo, t: &DayTimes) -> String {
+    let j = jewish_row(d, t);
+    let fill = jewish_fill(d).map_or("none".to_string(), |c| format!("rgb({})", q(c)));
     format!(
         "r(fill: {fill}, gd: {}, wd: {}, top: {}, name: {}, sub: {}, time: {}, tk: {}, candle: {}, hnum: {}, hwd: {}, rc: {}, omer: {}, ctr: {}, bold: {})\n",
         q(&d.gregorian.2.to_string()),
         q(WD_DE[usize::from(d.weekday)]),
-        q(&top),
-        q(&name),
-        q(&sub),
-        q(&time),
-        q(tk),
-        candle,
+        q(&j.top),
+        q(&j.name),
+        q(&j.sub),
+        q(&j.time),
+        q(j.tk),
+        j.candle,
         q(&d.hebrew.day.to_string()),
         q(WD_HE[usize::from(d.weekday)]),
-        q(rc),
-        q(&omer),
-        centered,
-        bold,
+        q(j.rc),
+        q(&j.omer),
+        j.centered,
+        j.bold,
     )
 }
 
 /// "3. Oktober, 25.–26. Dezember, 1. Januar"
-fn state_holidays_text(from: Day, to: Day) -> String {
+pub(crate) fn state_holidays_text(from: Day, to: Day) -> String {
     let hs = german::holidays_hesse_between(from, to);
     let mut parts: Vec<String> = Vec::new();
     let mut i = 0;
@@ -352,7 +173,7 @@ pub fn typst_source(year: i32, o: &Options) -> String {
         .map(|i| day_times(&days, i, &o.location, &o.zmanim))
         .collect();
 
-    let s = o.paper.height_mm / 210.0; // Maßstab gegenüber A4
+    let s = o.paper.scale();
     let rows_n = cols
         .iter()
         .map(|c| c.days.len())
@@ -360,63 +181,47 @@ pub fn typst_source(year: i32, o: &Options) -> String {
         .unwrap_or(30)
         .max(30) as f64;
     let (header_h, colhead_h, footer_h, gap) = (29.0, 9.0, 11.0, 1.5);
-    let row_h = (210.0 - 5.0 - 4.0 - header_h - colhead_h - footer_h - gap) / rows_n;
+    // Zeilenhöhe aus der tatsächlichen Seitenhöhe (auch im Hochformat)
+    let row_h =
+        (o.paper.height_mm - (5.0 + 4.0 + header_h + colhead_h + footer_h + gap) * s) / rows_n;
 
     let (g0, _, _) = gregorian_from_day(hebrew_year_days(year).start);
     let year_label = format!("{}/{:02}", g0, (g0 + 1) % 100);
 
-    let mut out = String::new();
-    let _ = writeln!(out, "#let S = {s:.5}");
-    let _ = writeln!(
-        out,
-        "#set page(width: {}mm, height: {}mm, margin: (x: 5.5mm * S, top: 5mm * S, bottom: 4mm * S))",
-        o.paper.width_mm, o.paper.height_mm
-    );
-    let _ = writeln!(
-        out,
-        "#set text(font: (\"Arial\", \"DejaVu Sans Mono\"), size: 6pt * S, lang: \"de\", fill: rgb(\"#1b1b1b\"))"
-    );
+    let mut out = o.style.preamble(&o.paper);
+    out.push_str(TYPST_TIME_FN);
     out.push_str(&format!(
-        r##"#set block(spacing: 0pt)
-#let ROWH = {row_h:.4}mm * S
+        r##"#let ROWH = {row_h:.4}mm
 #let LW = 6.4mm * S
 #let RW = 7.4mm * S
-#let BLUE = rgb("#2a78bd")
-#let RED = rgb("#d4202a")
 #let r(fill: none, gd: "", wd: "", top: "", name: "", sub: "", time: "", tk: "", candle: false, hnum: "", hwd: "", rc: "", omer: "", ctr: false, bold: false) = block(
   width: 100%, height: ROWH, fill: fill, clip: true,
   stroke: (bottom: 0.12pt * S + luma(190)), inset: (x: 0.5mm * S, y: 0pt),
   {{
-    set par(leading: 0.1em * S, spacing: 0pt)
+    set par(leading: 0.1em, spacing: 0pt)
     grid(
-      columns: (LW, 1fr, RW), column-gutter: 0.4mm * S,
+      columns: (LW * F, 1fr, RW * F), column-gutter: 0.4mm * S,
       align(horizon + left, if gd != "" {{
         stack(dir: ttb, spacing: 0pt,
-          text(size: 5.8pt * S, weight: "bold")[#gd],
-          text(size: 4.1pt * S, fill: luma(80))[#wd])
+          text(size: 5.8pt * S * F, weight: "bold")[#gd],
+          text(size: 4.1pt * S * F, fill: luma(80))[#wd])
       }}),
       align(horizon + left, grid(
         columns: (1fr, auto), column-gutter: 0.5mm * S,
         align(horizon + if ctr {{ center }} else {{ left }}, {{
-          if top != "" {{ text(size: 4.3pt * S, fill: RED)[#top]; linebreak() }}
-          if omer != "" and name == "" {{ text(size: 4.3pt * S, fill: luma(90))[#omer] }}
-          else if omer != "" {{ text(size: 4.1pt * S, fill: luma(90))[#omer #h(0.8mm * S)] }}
-          if name != "" {{ text(size: if name.len() > 20 {{ 4.9pt * S }} else {{ 5.6pt * S }}, weight: if bold {{ "bold" }} else {{ "regular" }}, fill: if ctr {{ rgb("#0b2a5b") }} else {{ rgb("#1b1b1b") }})[#name] }}
-          if sub != "" {{ linebreak(); text(size: 4.2pt * S, fill: luma(60))[#sub] }}
+          if top != "" {{ text(size: 4.3pt * S * F, fill: RED)[#top]; linebreak() }}
+          if omer != "" and name == "" {{ text(size: 4.3pt * S * F, fill: luma(90))[#omer] }}
+          else if omer != "" {{ text(size: 4.1pt * S * F, fill: luma(90))[#omer #h(0.8mm * S)] }}
+          if name != "" {{ text(size: if name.len() > 20 {{ 4.9pt * S * F }} else {{ 5.6pt * S * F }}, weight: if bold {{ "bold" }} else {{ "regular" }}, fill: if ctr {{ rgb("#0b2a5b") }} else {{ rgb("#1b1b1b") }})[#name] }}
+          if sub != "" {{ linebreak(); text(size: 4.2pt * S * F, fill: luma(60))[#sub] }}
         }}),
-        align(horizon + right, if time != "" {{
-          text(size: 5.6pt * S, fill: RED)[#if candle {{ [✦ ] }}#if tk == "over" {{ box(stroke: (top: 0.45pt * S + RED), inset: (top: 0.25mm * S), time) }} else if tk == "under" {{ box(stroke: (bottom: 0.45pt * S + RED), inset: (bottom: 0.25mm * S), time) }} else {{ time }}]
-        }}),
+        align(horizon + right, timebox(time, tk, candle, 5.6pt * S * F)),
       )),
       align(horizon + right, stack(dir: ttb, spacing: 0pt,
-        text(size: 5.2pt * S)[#if rc != "" {{ text(size: 5.5pt * S)[#rc ] }}#hnum],
-        text(size: 4.1pt * S, lang: "he", fill: luma(80))[#hwd])),
+        text(size: 5.2pt * S * F)[#if rc != "" {{ text(size: 5.5pt * S * F)[#rc ] }}#hnum],
+        text(size: 4.1pt * S * F, lang: "he", fill: luma(80))[#hwd])),
     )
   }})
-#let colhead(title, sub) = block(width: 100%, height: {colhead_h}mm * S, fill: BLUE, inset: (x: 0.8mm * S, y: 0.6mm * S),
-  align(center + horizon, stack(dir: ttb, spacing: 0.6mm * S,
-    text(font: ("Times New Roman", "Libertinus Serif"), size: 8.6pt * S, weight: "bold", fill: white)[#title],
-    text(size: 5.4pt * S, weight: "bold", fill: white)[#sub])))
 #let blank() = r()
 "##
     ));
@@ -428,7 +233,7 @@ pub fn typst_source(year: i32, o: &Options) -> String {
         .iter()
         .map(|l| {
             format!(
-                "text(size: 12pt * S, weight: \"bold\", fill: BLUE)[#{}]",
+                "text(size: 12pt * S * F, weight: \"bold\", fill: BLUE)[#{}]",
                 q(l)
             )
         })
@@ -440,17 +245,17 @@ pub fn typst_source(year: i32, o: &Options) -> String {
         .iter()
         .map(|b| {
             let lines = b.iter().map(|l| q(l)).collect::<Vec<_>>().join(", ");
-            format!("block(width: 100%, text(size: 4.6pt * S)[#({lines},).join(linebreak())])")
+            format!("block(width: 100%, text(size: 4.6pt * S * F)[#({lines},).join(linebreak())])")
         })
         .collect::<Vec<_>>()
         .join(", ");
     out.push_str(&format!(
         r##"#let header() = block(width: 100%, height: {header_h}mm * S, grid(
   columns: (62mm * S, 1fr, 66mm * S),
-  align(horizon + left, stack(dir: ttb, spacing: 1mm * S, {name_lines}, text(size: 11pt * S, lang: "he", fill: BLUE)[#{hebrew}])),
+  align(horizon + left, stack(dir: ttb, spacing: 1mm * S, {name_lines}, text(size: 11pt * S * F, lang: "he", fill: BLUE)[#{hebrew}])),
   align(center + horizon, {{ text(size: 86pt * S, weight: "bold", fill: rgb("#3b5bc4"))[{year}]; h(3mm * S); text(size: 17pt * S, weight: "bold", fill: rgb("#b8932f"))[{year_label}] }}),
   stack(dir: ttb, spacing: 1.5mm * S,
-    align(right, text(size: 9pt * S, lang: "he", fill: BLUE)[#{mark}]),
+    align(right, text(size: 9pt * S * F, lang: "he", fill: BLUE)[#{mark}]),
     grid(columns: (1fr, 1fr), column-gutter: 2mm * S, {info})),
 ))
 "##,
@@ -465,12 +270,12 @@ pub fn typst_source(year: i32, o: &Options) -> String {
     } else {
         vec![&cols[..]]
     };
+    let rows_total = rows_n as usize;
     for (pi, page) in pages.iter().enumerate() {
         if pi > 0 {
             out.push_str("#pagebreak()\n");
         }
-        out.push_str("#header()\n#v(");
-        let _ = writeln!(out, "{gap}mm * S)");
+        let _ = writeln!(out, "#header()\n#v({gap}mm * S)");
         let _ = writeln!(
             out,
             "#grid(columns: (1fr,) * {}, column-gutter: 0mm,",
@@ -481,31 +286,22 @@ pub fn typst_source(year: i32, o: &Options) -> String {
         let mut footnote = String::new();
         for c in page.iter() {
             let _ = writeln!(out, "[");
-            let _ = writeln!(out, "#colhead({}, {})", q(&c.title), q(&c.greg_range));
+            let _ = writeln!(
+                out,
+                "#colhead({}, {}, {colhead_h}mm * S)",
+                q(&c.title),
+                q(&c.greg_range)
+            );
             for &i in &c.days {
                 let d = &days[i];
                 page_first.get_or_insert(d.day);
                 page_last = Some(d.day);
-                let tb = d.holidays.iter().any(|h| h.name_de == "Taanit Bechorot");
-                let _ = write!(out, "#{}", row(d, &times[i], tb));
-                if tb {
-                    let (b, e) = (times[i].fast_begin, times[i].fast_end);
-                    if let (Some(b), Some(e)) = (b, e) {
-                        footnote.push_str(&format!("*  Taanit Bechorot {} – {}", fmt(b), fmt(e)));
-                    }
-                    if let Some(m) = times[i].seder_midnight {
-                        footnote.push_str(&format!(
-                            "      Mitternacht (Sederabend) {:02}:{:02}",
-                            m / 60,
-                            m % 60
-                        ));
-                    }
-                    if let Some(v) = times[i].chametz_burning_ends {
-                        footnote.push_str(&format!("      Chametz verbrennen {}", fmt(v)));
-                    }
+                let _ = write!(out, "#{}", row(d, &times[i]));
+                if d.holidays.iter().any(|h| h.name_de == "Taanit Bechorot") {
+                    footnote.push_str(&pessach_footnote(&times[i]));
                 }
             }
-            for _ in c.days.len()..30 {
+            for _ in c.days.len()..rows_total {
                 let _ = writeln!(out, "#blank()");
             }
             let _ = writeln!(out, "],");
@@ -519,18 +315,35 @@ pub fn typst_source(year: i32, o: &Options) -> String {
         } else {
             format!("{y0}/{y1}")
         };
-        let legend = "FB = Fastenbeginn, FE = Fastenende, Rosch Chodesch = ●, Rosch Chodesch 1. Tag = ①, Rosch Chodesch 2. Tag = ②, Linie über Uhrzeit = Schabbat-Beginn, Linie unter Uhrzeit = Ende, ✦ = Kerzenzünden (Chanukka)";
-        let line = |s: &str| format!("text(fill: luma(40))[#{}]", q(s));
-        let _ = writeln!(
-            out,
-            "#place(bottom + left, block(width: 100%, height: {footer_h}mm * S, {{
-  set text(size: 5pt * S)
-  align(bottom, stack(dir: ttb, spacing: 0.8mm * S, {}, text(weight: \"bold\", fill: luma(40))[#{}], {}))
-}}))",
-            line(legend),
-            q(&format!("Staatliche Feiertage {label}: {}", state_holidays_text(from, to))),
-            line(&footnote),
+        footer(
+            &mut out,
+            footer_h,
+            &[
+                LEGEND.to_string(),
+                format!(
+                    "Staatliche Feiertage {label}: {}",
+                    state_holidays_text(from, to)
+                ),
+                footnote,
+            ],
         );
     }
     out
+}
+
+/// Fußzeile unten auf der Seite; die zweite Zeile wird fett gesetzt.
+pub(crate) fn footer(out: &mut String, footer_h: f64, lines: &[String]) {
+    let items: Vec<String> = lines
+        .iter()
+        .enumerate()
+        .map(|(i, l)| {
+            let weight = if i == 1 { "bold" } else { "regular" };
+            format!("text(weight: \"{weight}\", fill: luma(40))[#{}]", q(l))
+        })
+        .collect();
+    let _ = writeln!(
+        out,
+        "#place(bottom + left, block(width: 100%, height: {footer_h}mm * S, {{\n  set text(size: 5pt * S * F)\n  align(bottom, stack(dir: ttb, spacing: 0.8mm * S, {}))\n}}))",
+        items.join(", ")
+    );
 }

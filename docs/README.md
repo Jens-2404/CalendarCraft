@@ -60,6 +60,14 @@ Offen dazu:
 3. Das PDF ist ein Werk der Gemeinde. Für die private Prüfung nutze ich es nur lokal (nicht in Git). Vor einer Veröffentlichung sollte die Gemeinde zustimmen.
 4. Das Beispiel nutzt kostenpflichtige Schriften (Favorit). CalendarCraft liefert freie Schriften mit, das Aussehen weicht daher leicht ab.
 
+## Jahreskalender im Stil von Kalenderpedia (18.10.2026)
+
+`cc-cli jahreskalender --year 2027` erzeugt einen Jahreskalender Januar–Dezember: gregorianische Monate als Spalten, eine Zeile je Tag, Kalenderwochen, gesetzliche Feiertage (Hessen, rot) und dazu je Tag das hebräische Datum, jüdische Feiertage, Parascha, Omer, Kerzenzünden und Schabbatende. Er kann auf 1 oder 2 Seiten stehen und mit einem beliebigen Startmonat beginnen.
+
+Für beide Vorlagen gibt es jetzt diese Einstellungen: Papierformat (A0–A5, US-Formate, eigene Maße), Hoch- oder Querformat, Schrift des Inhalts, Schrift der Monatsköpfe und Schriftgröße (Faktor). Aufruf siehe README im Projektordner.
+
+Offen: Halbjahres-, Monats- und Wochenkalender; Bundesland wählbar (bisher Hessen); Bedienung in der App statt Kommandozeile.
+
 ## Prototyp Gemeindekalender (18.10.2026)
 
 Mit `cc-cli gemeindekalender --year 5787 --out kalender.pdf` entsteht ein Kalender im Aufbau Ihres Frankfurter Beispiels (A4 quer, 2 Seiten, eine Spalte je Monat). Er läuft in unter 0,2 Sekunden und rechnet Feiertage, Wochenabschnitte und Zeiten selbst.

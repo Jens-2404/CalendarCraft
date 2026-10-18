@@ -141,6 +141,16 @@ pub fn hebrew_year_days(year: i32) -> std::ops::Range<Day> {
     rosh_hashana(year)..rosh_hashana(year + 1)
 }
 
+/// ISO-8601-Kalenderwoche: (Jahr der Woche, Woche 1–53). Woche 1 enthält
+/// den ersten Donnerstag des Jahres, Wochenbeginn Montag.
+pub fn iso_week(day: Day) -> (i32, u8) {
+    let monday_based = (i64::from(weekday(day)) + 6) % 7; // Montag = 0
+    let thursday = day - monday_based + 3;
+    let (year, _, _) = gregorian_from_day(thursday);
+    let jan1 = day_from_gregorian(year, 1, 1).expect("gültiges Datum");
+    (year, ((thursday - jan1) / 7 + 1) as u8)
+}
+
 /// Hilfsfunktion für Tests und Beispiele.
 pub fn is_gregorian_leap_year(year: i32) -> bool {
     is_gregorian_leap(year)
@@ -240,6 +250,16 @@ mod tests {
             let n = day_from_gregorian(y, m, d).unwrap();
             assert_eq!(gregorian_from_day(n), (y, m, d));
         }
+    }
+
+    #[test]
+    fn iso_weeks() {
+        let w = |y, m, d| iso_week(day_from_gregorian(y, m, d).unwrap());
+        assert_eq!(w(2027, 1, 1), (2026, 53)); // Freitag
+        assert_eq!(w(2027, 1, 4), (2027, 1)); // Montag
+        assert_eq!(w(2027, 12, 31), (2027, 52));
+        assert_eq!(w(2026, 12, 31), (2026, 53));
+        assert_eq!(w(2024, 12, 30), (2025, 1));
     }
 
     #[test]
