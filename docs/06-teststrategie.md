@@ -1,6 +1,6 @@
 # CalendarCraft – Teststrategie
 
-Version 0.3 (Entwurf), Stand 17.10.2026
+Version 0.4 (Entwurf), Stand 18.10.2026
 
 Ein Kalender mit falschem Datum ist wertlos, auch wenn er gut aussieht. Die Tests konzentrieren sich deshalb auf die fachliche Korrektheit und darauf, dass Vorschau, Export und Plattformen dasselbe Ergebnis liefern.
 
@@ -52,6 +52,19 @@ Referenztests:
 - Tage mit Zeitumstellung, Polartag/-nacht und Fälle, in denen ein Sonnentiefstand nicht erreicht wird, haben eigene Tests.
 - Kerzenzündung am zweiten Feiertagsabend und an Schabbat-Ausgang vor einem Feiertag.
 - Erev-/Nacht-Einträge liegen auf dem richtigen gregorianischen Tag.
+
+## 3b. Referenz: Gemeindekalender Frankfurt 5784
+
+Das PDF `Kalender_5784.pdf` (Jüdische Gemeinde Frankfurt, A4 quer, 2 Seiten) enthält maschinenlesbaren Text. Daraus entsteht eine Prüfdatei mit je Tag: gregorianisches und hebräisches Datum, Tagesname, Zeiten, Symbole. Sie dient als Referenz für:
+
+- Datumsumrechnung und hebräischer Wochentag je Zeile
+- Feiertage, Fasttage, Parascha, besondere Schabbatot, Rosch Chodesch, Omer, Chanukka-Tage
+- Zeiten: Kerzenzünden, Schabbatende, Fastenbeginn/-ende, Chametz-Zeiten, Mitternacht (Toleranz 1 Minute, Abweichungen einzeln erklärt)
+- Staatliche Feiertage der Fußzeile (Hessen)
+
+Rechtlicher Hinweis: Das PDF ist ein Werk der Gemeinde. Die Prüfdatei liegt nur privat unter `testdata/private/` (von Git ausgeschlossen). Vor einer Open-Source-Veröffentlichung wird die Gemeinde um Zustimmung gebeten oder die Prüfdaten werden durch Hebcal-Daten ersetzt.
+
+Zusätzlich ein Layout-Test: Das Projekt „Gemeinde Frankfurt 5784" erzeugt ein PDF, dessen Struktur dem Beispiel entspricht (13 Monatsspalten auf 2 Seiten, 6 + 7, Kopf, Fußzeile, Zeilenstile); Prüfung über Snapshot des Layout-Baums und Sichtprüfung durch den Auftraggeber.
 
 ## 4. Layout und Rendering
 

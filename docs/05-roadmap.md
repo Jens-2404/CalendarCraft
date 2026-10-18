@@ -1,6 +1,8 @@
 # CalendarCraft – Roadmap und Meilensteine
 
-Version 0.3 (Entwurf), Stand 17.10.2026
+Version 0.4 (Entwurf), Stand 18.10.2026
+
+Änderungen in 0.4: Vorlage „Gemeindekalender" nach dem Beispiel-PDF des Auftraggebers als Abnahmeziel in den Phasen 3, 4 und 5; Phase 0 mit Erkenntnissen aus dem Beispiel ergänzt.
 
 Änderungen in 0.3: Luach Pirsum nur aus der Erinnerung (Prototyp statt Materialauswertung); Taschenkalender ins MVP; Ortsdatenbank und Schabbatende erweitert; Zeitbudget noch offen.
 
@@ -72,13 +74,16 @@ Abnahme: Feiertage und Paraschot 1950–2100 deckungsgleich mit Hebcal; deutsche
 - Zmanim-Profile, Sonderfälle hoher Breiten, zweiter Feiertagsabend.
 - Ortsdatenbank und Zeitzonen, offline: deutsche Großgemeinden und große jüdische Gemeinden weltweit, freie Eingabe von Längen-/Breitengrad; Ortsvoreinstellungen (Frankfurt 30 Minuten Kerzenzündung).
 - Schabbatende in den Arten nach myzmanim.com wählbar.
+- Zusätzliche Zeiten: Fastenbeginn/-ende, Mitternacht, Chametz-Zeiten, Taanit Bechorot.
+- Aus den gedruckten Zeiten des Frankfurter Beispiel-PDFs (Kerzenzünden, Schabbatende, Fasten) ableiten, welche Berechnungsarten die Gemeinde nutzt, und als Voreinstellung „Frankfurt" speichern.
 - `cc-cli zmanim --city Frankfurt --year 2027`.
 
-Abnahme: Zmanim für mindestens zehn Orte (u. a. Frankfurt, Berlin, Jerusalem, New York, Tromsø) über ein Jahr höchstens 1 Minute Abweichung von Hebcal/KosherJava mit gleichen Parametern.
+Abnahme: Die Zeiten des Frankfurter Beispiel-PDFs (Kalender 5784) stimmen auf die Minute oder weichen höchstens um eine Minute ab; Abweichungen sind einzeln erklärt. Zmanim für mindestens zehn Orte (u. a. Frankfurt, Berlin, Jerusalem, New York, Tromsø) über ein Jahr höchstens 1 Minute Abweichung von Hebcal/KosherJava mit gleichen Parametern.
 
 ## Phase 4 – Layout, Formate, Export (ca. 7 Wochen)
 
 - Umsetzung der in ADR-002 gewählten Engine.
+- Vorlage Gemeindekalender (Monatsspalten, siehe 07-vorlage-gemeindekalender.md) einschließlich Kopfbereich, Zeilenstilen, Legende und Fußzeile; PDF/X-4-Machbarkeit prüfen.
 - Vorlagen MVP: Wandkalender-Monatsblatt, Taschenkalender, Jahresübersicht, Tischkalender, Schabbat-/Feiertagszeitentafel.
 - Geschwindigkeit: Kalender mit allen Monaten in unter 2 Sekunden in der Vorschau (Messung in der CI, siehe Teststrategie).
 - Alle Papierformate (DIN A6 bis 4A0, US-Formate, eigene Maße); Vorlagen skalieren Schrift und Raster.
@@ -87,7 +92,7 @@ Abnahme: Zmanim für mindestens zehn Orte (u. a. Frankfurt, Berlin, Jerusalem, N
 - Export PDF, SVG, PNG; Snapshot-Tests.
 - `cc-cli render projekt.ccal --out kalender.pdf`.
 
-Abnahme: Wandkalender mit Fotos, Paraschot und Kerzenzündezeiten für Frankfurt als PDF in A4 und A0; auf allen drei Betriebssystemen identisch.
+Abnahme: Das Projekt „Gemeinde Frankfurt 5784" erzeugt einen Gemeindekalender, der dem Beispiel in Aufbau und Inhalt entspricht (Abnahmetest in 07-vorlage-gemeindekalender.md, 5.4), in A4 quer und A0; Wandkalender mit Fotos, Paraschot und Kerzenzündezeiten für Frankfurt als PDF; auf allen drei Betriebssystemen identisch.
 
 ## Phase 5 – Oberfläche MVP (ca. 7 Wochen)
 

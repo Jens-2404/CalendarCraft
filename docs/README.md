@@ -1,6 +1,6 @@
 # CalendarCraft – Planungsunterlagen
 
-Stand 17.10.2026, Version 0.3 (Entwurf zur Prüfung)
+Stand 18.10.2026, Version 0.4 (Entwurf zur Prüfung)
 
 CalendarCraft ist eine Rust-Anwendung für Browser und Desktop (Windows, macOS, Linux), mit der man Kalender in allen gängigen Formen und Papiergrößen gestaltet. Schwerpunkt sind der jüdische und der gregorianische Kalender mit Feiertagen, Paraschot und Zmanim sowie den gesetzlichen Feiertagen in Deutschland und Israel. Vorbild für Aufbau und Bedienung ist die frühere Software „Luach Pirsum".
 
@@ -14,6 +14,7 @@ CalendarCraft ist eine Rust-Anwendung für Browser und Desktop (Windows, macOS, 
 | 4 | [04-ablaufplaene.md](04-ablaufplaene.md) | Nutzerablauf, Feiertagsberechnung, Vorschau/Export, Projektzustände, Entwicklungs-, CI- und Release-Ablauf |
 | 5 | [05-roadmap.md](05-roadmap.md) | Phasen 0–6 mit Zielen, Abnahmekriterien und Schätzungen |
 | 6 | [06-teststrategie.md](06-teststrategie.md) | Testebenen, Referenztests, Zmanim-Tests, Rendering- und E2E-Tests |
+| 7 | [07-vorlage-gemeindekalender.md](07-vorlage-gemeindekalender.md) | Vorlage „Gemeindekalender" nach dem Beispiel des Auftraggebers (Frankfurt 5784): Aufbau, Zeilenstile, Zeiten, Abnahmetest |
 
 ## Entscheidungen (Antworten vom 17.10.2026)
 
@@ -47,6 +48,17 @@ Das ist in PRD 5.7 und im Nutzerablauf eingearbeitet, die Geschwindigkeit als me
 2. **Schabbatende wie myzmanim.com:** Die Seite war für mich nicht vollständig abrufbar. Falls Sie die Optionsliste dort zur Hand haben (Namen, Winkel, Minuten), schicken Sie sie mir, sonst gleiche ich sie in Phase 0 ab.
 3. **Orte:** Die Liste der deutschen Großgemeinden in Spezifikation 3.5 ist ein Vorschlag. Bitte streichen oder ergänzen Sie, was Ihnen fehlt.
 4. **Prototyp statt Handbuch:** Sind Sie einverstanden, dass Phase 0 einen klickbaren Prototyp aus Ihrer Beschreibung baut, den Sie so lange korrigieren, bis er Luach Pirsum entspricht?
+
+## Vorbild-PDF „Kalender 5784" (18.10.2026)
+
+Ihr Beispiel ist der Wandkalender der Jüdischen Gemeinde Frankfurt: A4 quer, zwei Seiten, eine Spalte je jüdischem Monat, eine Zeile je Tag, Kopfbereich mit Logo und Adresse, Legende und Liste der staatlichen Feiertage. Ausgewertet in [07-vorlage-gemeindekalender.md](07-vorlage-gemeindekalender.md); daraus sind neue Anforderungen geworden (F-V11, F-G11 bis F-G14, F-F15 bis F-F18) und ein Abnahmetest.
+
+Offen dazu:
+
+1. Dürfen die Namen der Tage frei umbenannt werden (das Beispiel schreibt z. B. „Schabat Schuwa" und „Haasinu" in eigener Schreibweise)?
+2. Soll ein Gemeindeprofil (Logo, Adresse, Schreibweisen, Zmanim-Methode) als Datei speicherbar sein, damit jedes Jahr nur die Jahreszahl geändert wird? Vorschlag: ja.
+3. Das PDF ist ein Werk der Gemeinde. Für die private Prüfung nutze ich es nur lokal (nicht in Git). Vor einer Veröffentlichung sollte die Gemeinde zustimmen.
+4. Das Beispiel nutzt kostenpflichtige Schriften (Favorit). CalendarCraft liefert freie Schriften mit, das Aussehen weicht daher leicht ab.
 
 ## Stand Phase 0 (17.10.2026)
 

@@ -1,6 +1,8 @@
 # CalendarCraft – Product Requirements Document (PRD)
 
-Version 0.3 (Entwurf zur Prüfung), Stand 17.10.2026
+Version 0.4 (Entwurf zur Prüfung), Stand 18.10.2026
+
+Änderungen in 0.4: Vorlage „Gemeindekalender" nach dem Beispiel des Auftraggebers (Kalender 5784 der Jüdischen Gemeinde Frankfurt) als zentrale Kalenderform des MVP; Details in [07-vorlage-gemeindekalender.md](07-vorlage-gemeindekalender.md). PDF/X-4 auf Soll angehoben.
 
 Änderungen in 0.3: Angaben zu Luach Pirsum eingearbeitet (5.7); Taschenkalender ins MVP; Kerzenzündung und Schabbatende nach Ort bzw. myzmanim.com (F-F7a/b); Ortsdatenbank mit deutschen Großgemeinden (F-F8); Geschwindigkeit der Kalendererstellung als Anforderung (NF-2).
 
@@ -80,6 +82,10 @@ Priorität: M = Muss (MVP), S = Soll (Version 1.0), K = Kann (später).
 | F-F12 | Eigene Ereignisse: einmalig, jährlich wiederkehrend (gregorianisch oder hebräisch, z. B. Jahrzeit, Bar/Bat Mizwa), Geburtstage | M |
 | F-F13 | Jede Feiertagsgruppe einzeln ein-/ausblendbar, eigene Farben und Symbole | M |
 | F-F14 | Jeder berechnete Eintrag zeigt auf Wunsch seine Regel an („15. Nisan, Diaspora: 2 Tage") | S |
+| F-F15 | Kalenderbeginn am letzten Tag des Vormonats (Erew Rosch HaSchana) und Spaltenkopf mit zwei Monaten, wenn ein Zeitraum zwei Monate umfasst | M |
+| F-F16 | Zusätzliche Zeiten: Fastenbeginn und -ende, Mitternacht (Chazot), Bdikat Chametz, Chametz-Verbot, Chametz-Verbrennung, Taanit Bechorot | M |
+| F-F17 | Totengedenktage „Jiskor" als kennzeichenbare Gruppe | S |
+| F-F18 | Gesetzliche Feiertage als Datumsliste in der Fußzeile („Staatliche Feiertage 2023/2024: …") | M |
 
 Die vollständige fachliche Liste mit Regeln steht in [03-kalender-und-feiertage.md](03-kalender-und-feiertage.md).
 
@@ -97,6 +103,8 @@ Die vollständige fachliche Liste mit Regeln steht in [03-kalender-und-feiertage
 | F-V8 | Familienplaner (Spalten pro Person) | K |
 | F-V9 | Immerwährender Geburtstags-/Jahrzeitkalender | K |
 | F-V10 | Abreißkalender (ein Tag je Blatt) | K |
+| F-V11 | Gemeindekalender: jüdischer Hauptkalender mit einer Spalte je Monat und einer Zeile je Tag, gregorianisches Datum links, Zeiten rot; A4 quer bis A0, 1–3 Seiten je nach Spaltenzahl. Vorbild: Kalender 5784 der Jüdischen Gemeinde Frankfurt, siehe [07-vorlage-gemeindekalender.md](07-vorlage-gemeindekalender.md) | M |
+| F-V12 | Ableitungen der Gemeindekalender-Zeilenlogik: Hochformat mit weniger Spalten je Seite, Tischkalender mit einem Monat je Seite | S |
 
 Jede Kalenderform lässt sich auf jedes Papierformat aus 5.5 anwenden; die Vorlage passt Schriftgrößen und Raster an.
 
@@ -114,6 +122,10 @@ Jede Kalenderform lässt sich auf jedes Papierformat aus 5.5 anwenden; die Vorla
 | F-G8 | Ziffern wählbar: westlich oder hebräische Buchstabenzahlen (z. B. כ״ה, תשפ״ז) | M |
 | F-G9 | Vorlageneditor: Elemente frei verschieben, eigene Vorlagen speichern | S |
 | F-G10 | Live-Vorschau jeder Seite, Zoom, Seitenübersicht | M |
+| F-G11 | Frei gestaltbarer Kopfbereich (Logo, großer Jahrestitel, Textblöcke für Adresse und Kontakt, Kopfzeichen „בס״ד") und Fußzeile (Legende, Fußnoten); als Gemeindeprofil speicherbar | M |
+| F-G12 | Zeilenstile je Tagestyp (Schabbat, Feiertag, Chol HaMoed, Erew, Fasttag, Rosch Chodesch) mit Farbe, Schriftschnitt und Symbolen, einstellbar | M |
+| F-G13 | Zeiten in Rot, mit Linie über (Beginn) bzw. unter (Ende) der Zeit; Format `hh.mm` oder `hh:mm` wählbar | M |
+| F-G14 | Eigene Schriften je Projekt laden (z. B. wenn eine Gemeinde Schriften lizenziert hat) | S |
 
 ### 5.5 Papierformate und Druck
 
@@ -125,7 +137,7 @@ Jede Kalenderform lässt sich auf jedes Papierformat aus 5.5 anwenden; die Vorla
 | F-D4 | Beschnitt (z. B. 3 mm), Schnittmarken, Sicherheitsabstand | S |
 | F-D5 | Großformat auf kleinem Drucker: Seite auf mehrere A4/Letter-Blätter kacheln, mit Überlappung und Klebemarken | S |
 | F-D6 | Seitenreihenfolge und Rückseiten für Spiral- und Heftbindung (Tischkalender, Taschenkalender) | S |
-| F-D7 | PDF/X und CMYK für Druckereien | K |
+| F-D7 | PDF/X-4 für Druckereien (das Vorbild wurde so ausgegeben); CMYK als spätere Erweiterung. Machbarkeit mit Typst in Phase 4 prüfen | S |
 
 ### 5.6 Export und Datenhaltung
 
@@ -157,6 +169,8 @@ Bekannter Aufbau:
 | F-LP4 | Weitere Einzelheiten (Menüs, Bildschirmaufteilung, Funktionsumfang des Vorbilds) werden mit dem Auftraggeber im Oberflächen-Prototyp (Phase 0) geklärt und hier nachgetragen | M |
 
 Taschenkalender ist wegen dieser Vorgabe vom Auftraggeber als Kalenderform des MVP zu behandeln (bisher Version 1.0, siehe 5.3).
+
+Vorbild für das Aussehen des Wand- und Tischkalenders ist das PDF „Kalender_5784" der Jüdischen Gemeinde Frankfurt (F-V11, Details in [07-vorlage-gemeindekalender.md](07-vorlage-gemeindekalender.md)).
 
 ### 5.8 Oberfläche
 
@@ -193,6 +207,7 @@ Taschenkalender ist wegen dieser Vorgabe vom Auftraggeber als Kalenderform des M
 
 ## 8. Erfolgskriterien
 
+- Das Projekt „Gemeinde Frankfurt 5784" erzeugt einen Kalender, der dem Beispiel des Auftraggebers in Inhalt und Aufbau entspricht (Abnahmetest in 07-vorlage-gemeindekalender.md, 5.4).
 - Der Auftraggeber erstellt einen jüdisch-gregorianischen Wandkalender mit Paraschot und Kerzenzündezeiten für Frankfurt am Main in unter 5 Minuten und exportiert ihn als PDF.
 - Aufbau und Bedienung entsprechen nach Einschätzung des Auftraggebers Luach Pirsum.
 - Keine bekannten Fehler bei Datum, Feiertagen, Paraschot und Zmanim zum Release 1.0.

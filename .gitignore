@@ -7,3 +7,4 @@
 /Download/
 *.export
 /.claude/settings.local.json
+/testdata/private/

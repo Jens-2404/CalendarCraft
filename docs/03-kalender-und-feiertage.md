@@ -1,6 +1,8 @@
 # CalendarCraft – Fachspezifikation Kalendersysteme und Feiertage
 
-Version 0.3 (Entwurf), Stand 17.10.2026
+Version 0.4 (Entwurf), Stand 18.10.2026
+
+Änderungen in 0.4: Raster „Monatsspalten" für den Gemeindekalender (Abschnitt 5) und zusätzliche Zeiten (Abschnitt 3.5) nach dem Beispiel-PDF des Auftraggebers; siehe [07-vorlage-gemeindekalender.md](07-vorlage-gemeindekalender.md).
 
 Änderungen in 0.3: Kerzenzündung Frankfurt 30 Minuten; Auswahl des Schabbatendes nach myzmanim.com; erweiterte Ortsdatenbank mit freier Koordinateneingabe.
 
@@ -199,6 +201,20 @@ Auswahl für Schabbat- und Feiertagsende: Der Auftraggeber möchte die Wahl wie 
 
 Die Liste wird in Phase 0 anhand der Webseite von myzmanim.com Punkt für Punkt abgeglichen und hier vervollständigt (Namen, Winkel, Minuten, Verhalten bei hohen Breiten). Auch die Zmanim-Werte der Tests (Abschnitt Teststrategie 3a) nutzen MyZmanim als zusätzliche Referenz.
 
+Weitere Zeiten, die das Beispiel des Auftraggebers ausweist (jeweils mit Ort, Zeitzone und Profil):
+
+| Zeit | Anlass | Berechnung |
+|---|---|---|
+| Fastenbeginn (FB) | kleine Fasttage, Jom Kippur, Tischa beAw | Alot HaSchachar bzw. Sonnenuntergang des Vortags, je nach Fasttag |
+| Fastenende (FE) | alle Fasttage | Tzet HaKochawim nach gewählter Art |
+| Mitternacht (Chazot HaLajla) | Nacht vor Rosch HaSchana (Selichot) und weitere Nächte | Mitte zwischen Sonnenuntergang und Sonnenaufgang |
+| Bdikat Chametz | Abend vor Pessach | Tzet HaKochawim |
+| Chametz-Verbot (Ende der Essenszeit) | Erew Pessach | 4 Saisonstunden nach Alot oder nach Sonnenaufgang (Brauch wählbar) |
+| Chametz verbrannt (Ende der Verbrennungszeit) | Erew Pessach | 5 Saisonstunden |
+| Taanit Bechorot | Erew Pessach | Fastenbeginn und -ende wie bei kleinen Fasttagen |
+
+Welche Berechnung die Gemeinde im Beispiel verwendet, wird in Phase 3 aus den gedruckten Zeiten abgeleitet (siehe 07-vorlage-gemeindekalender.md, 5.2). Die Spalte „Berechnung" ist bis dahin ein Vorschlag.
+
 Sonderfälle:
 
 - Hohe Breiten: Wenn die Sonne im Sommer nicht weit genug sinkt (z. B. 16,1° in Nordeuropa im Juni), gibt die App „keine Zeit" mit Hinweis aus oder nutzt eine wählbare Ersatzregel.
@@ -247,6 +263,7 @@ Ein Projekt hat einen Hauptkalender, der das Raster bestimmt (Monatsblätter, Wo
 |---|---|
 | Gregorianisch | Monatsblatt = gregorianischer Monat; hebräische Monatswechsel werden in der Zelle markiert (z. B. „1 Kislew"); im Kopf stehen die beiden betroffenen hebräischen Monate |
 | Jüdisch | Monatsblatt = jüdischer Monat; im Schaltjahr 13 Blätter; Jahr beginnt wahlweise mit Tischri oder Nisan; Raster wahlweise von rechts nach links |
+| Jüdisch, Monatsspalten | Alle Monate eines Jahres nebeneinander, eine Zeile je Tag, gregorianisches Datum in der Zeile (Gemeindekalender, siehe 07-vorlage-gemeindekalender.md). Der Kalender beginnt am letzten Tag des Vormonats (Erew Rosch HaSchana); der erste Spaltenkopf nennt dann zwei Monate |
 
 Zmanim und Parascha erscheinen je nach Vorlage in der Schabbat-Zelle, in einer eigenen Spalte oder als Tabelle am Seitenrand.
 
