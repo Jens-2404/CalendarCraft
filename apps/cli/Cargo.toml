@@ -15,3 +15,4 @@ cc-calendar.workspace = true
 cc-templates = { path = "../../crates/cc-templates" }
 cc-render = { path = "../../crates/cc-render" }
 serde_json.workspace = true
+cc-holidays = { path = "../../crates/cc-holidays" }

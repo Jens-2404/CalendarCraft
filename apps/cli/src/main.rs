@@ -21,16 +21,18 @@ use std::time::Instant;
 
 use cc_render::Fonts;
 use cc_templates::common::{Paper, Style};
-use cc_templates::{gemeinde, jahr};
+use cc_templates::{events, gemeinde, jahr, monat};
 
 const USAGE: &str = "Aufruf:
   cc-cli convert JJJJ-MM-TT
   cc-cli jahreskalender  --year 2027 --out datei.pdf [Gestaltung] [--seiten 1|2] [--start-monat 1-12] [--titel TEXT]
   cc-cli gemeindekalender --year 5787 --out datei.pdf [Gestaltung] [--profile gemeinde.json]
+  cc-cli monatskalender  --jahr 5787 | --von 2026-09 [--monate 13] --out datei.pdf [Gestaltung]
+                         [--stil klassisch|foto] [--fotos ORDNER] [--fotos-pro-monat N] [--eintraege DATEI]
 
 Gestaltung:
   --format a4|a3|a2|a1|a0|a5|letter|legal|tabloid|BxH (mm)   Standard: a4 quer
-  --hoch                    Hochformat
+  --hoch / --quer           Hoch- oder Querformat
   --schrift NAME            Schriftfamilie, z. B. \"Segoe UI\"
   --titelschrift NAME       Schrift der Monatsköpfe
   --schriftgroesse FAKTOR   z. B. 1.2 = 20 % größer
@@ -43,6 +45,7 @@ fn main() -> ExitCode {
         Some("convert") if args.len() == 2 => return convert(&args[1]),
         Some("gemeindekalender") => run(Kind::Gemeinde, &args[1..]),
         Some("jahreskalender") => run(Kind::Jahr, &args[1..]),
+        Some("monatskalender") => run(Kind::Monat, &args[1..]),
         _ => {
             eprintln!("{USAGE}");
             return ExitCode::from(2);
@@ -83,6 +86,7 @@ fn convert(input: &str) -> ExitCode {
 enum Kind {
     Gemeinde,
     Jahr,
+    Monat,
 }
 
 fn run(kind: Kind, args: &[String]) -> Result<(), String> {
@@ -98,6 +102,14 @@ fn run(kind: Kind, args: &[String]) -> Result<(), String> {
     let mut pages = 2u8;
     let mut start_month = 1u8;
     let mut title: Option<String> = None;
+    let mut paper_set = false;
+    let mut landscape = false;
+    let mut month_style = monat::MonthStyle::Klassisch;
+    let mut from: Option<(i32, u8)> = None;
+    let mut months: u8 = 13;
+    let mut photo_dir: Option<PathBuf> = None;
+    let mut photos_per_month = 1usize;
+    let mut events_file: Option<PathBuf> = None;
 
     let mut it = args.iter();
     while let Some(a) = it.next() {
@@ -112,8 +124,31 @@ fn run(kind: Kind, args: &[String]) -> Result<(), String> {
             "--format" | "--paper" => {
                 let n = value(a)?;
                 paper = Paper::by_name(&n).ok_or(format!("unbekanntes Format {n}"))?;
+                paper_set = true;
             }
             "--hoch" => portrait = true,
+            "--quer" => landscape = true,
+            "--stil" => {
+                month_style = match value(a)?.to_lowercase().as_str() {
+                    "klassisch" => monat::MonthStyle::Klassisch,
+                    "foto" => monat::MonthStyle::Foto,
+                    other => return Err(format!("--stil: klassisch oder foto, nicht {other}")),
+                }
+            }
+            "--von" => {
+                let v = value(a)?;
+                let (y, m) = v.split_once('-').ok_or("--von wie 2026-09")?;
+                from = Some((
+                    y.parse().map_err(|_| "--von: Jahr")?,
+                    m.parse().map_err(|_| "--von: Monat")?,
+                ));
+            }
+            "--monate" => months = value(a)?.parse().map_err(|_| "--monate: Zahl")?,
+            "--fotos" => photo_dir = Some(value(a)?.into()),
+            "--fotos-pro-monat" => {
+                photos_per_month = value(a)?.parse().map_err(|_| "--fotos-pro-monat: Zahl")?
+            }
+            "--eintraege" => events_file = Some(value(a)?.into()),
             "--schrift" => {
                 style.font = value(a)?;
                 custom_font = true;
@@ -148,11 +183,36 @@ fn run(kind: Kind, args: &[String]) -> Result<(), String> {
             other => return Err(format!("unbekannte Option {other}\n\n{USAGE}")),
         }
     }
-    let year = year.ok_or("--year fehlt")?;
     let out = out.ok_or("--out fehlt")?;
+    if kind == Kind::Monat && !paper_set && month_style == monat::MonthStyle::Foto {
+        paper = paper.portrait();
+    }
     if portrait {
         paper = paper.portrait();
     }
+    if landscape {
+        paper = Paper::new(
+            paper.width_mm.max(paper.height_mm),
+            paper.width_mm.min(paper.height_mm),
+        );
+    }
+    // Monatskalender: --jahr 5787 (jüdisch, ab dem Monat von Rosch HaSchana)
+    // oder --von 2026-09
+    let year = match (kind, year, from) {
+        (Kind::Monat, Some(y), None) if y > 3000 => {
+            let (gy, gm, _) = cc_calendar::gregorian_from_day(cc_calendar::rosh_hashana(y));
+            from = Some((gy, gm));
+            y
+        }
+        (Kind::Monat, Some(y), None) => {
+            from = Some((y, 1));
+            months = 12;
+            y
+        }
+        (Kind::Monat, None, Some(f)) => f.0,
+        (_, Some(y), _) => y,
+        _ => return Err("--year fehlt".into()),
+    };
 
     // Schriften: Standard nur Arial/Times; bei eigener Schrift alle Systemschriften
     let t = Instant::now();
@@ -184,6 +244,31 @@ fn run(kind: Kind, args: &[String]) -> Result<(), String> {
     }
     let t_fonts = t.elapsed();
 
+    let mut photos: Vec<(String, Vec<u8>)> = Vec::new();
+    if let Some(dir) = &photo_dir {
+        let mut files: Vec<PathBuf> = std::fs::read_dir(dir)
+            .map_err(|e| format!("{}: {e}", dir.display()))?
+            .flatten()
+            .map(|e| e.path())
+            .filter(|p| {
+                let ext = p
+                    .extension()
+                    .map(|e| e.to_string_lossy().to_lowercase())
+                    .unwrap_or_default();
+                matches!(ext.as_str(), "jpg" | "jpeg" | "png" | "gif" | "webp")
+            })
+            .collect();
+        files.sort();
+        for (k, f) in files.iter().enumerate() {
+            let ext = f.extension().unwrap().to_string_lossy().to_lowercase();
+            let data = std::fs::read(f).map_err(|e| format!("{}: {e}", f.display()))?;
+            photos.push((format!("foto-{k:03}.{ext}"), data));
+        }
+        if photos.is_empty() {
+            return Err(format!("keine Bilder (jpg, png) in {}", dir.display()));
+        }
+    }
+
     let t = Instant::now();
     let src = match kind {
         Kind::Gemeinde => gemeinde::typst_source(
@@ -195,6 +280,27 @@ fn run(kind: Kind, args: &[String]) -> Result<(), String> {
                 ..gemeinde::Options::default()
             },
         ),
+        Kind::Monat => {
+            let mut o = monat::Options::new(month_style);
+            o.paper = paper;
+            o.style = style;
+            o.photos_per_month = photos_per_month.max(1);
+            if let Some(dir) = &photo_dir {
+                o.photos = photos.iter().map(|(n, _)| n.clone()).collect();
+                let _ = dir;
+            }
+            if let Some(f) = &events_file {
+                let text =
+                    std::fs::read_to_string(f).map_err(|e| format!("{}: {e}", f.display()))?;
+                let ev = events::parse(&text)?;
+                let (fy, fm) = from.expect("Startmonat gesetzt");
+                let first =
+                    cc_calendar::day_from_gregorian(fy, fm, 1).map_err(|e| e.to_string())?;
+                let days = cc_holidays::days_between(first - 1, first + 31 * i64::from(months) + 1);
+                o.events = events::resolve(&ev, &days);
+            }
+            monat::typst_source(from.expect("Startmonat gesetzt"), months, &o)
+        }
         Kind::Jahr => {
             let mut o = jahr::Options {
                 paper,
@@ -215,8 +321,12 @@ fn run(kind: Kind, args: &[String]) -> Result<(), String> {
     }
 
     let t = Instant::now();
+    let mut files: Vec<(&str, Vec<u8>)> = monat::icon_files();
+    for (n, d) in &photos {
+        files.push((n.as_str(), d.clone()));
+    }
     let doc =
-        cc_render::compile(&src, &fonts, &[]).map_err(|e| format!("Typst: {}", e.join("; ")))?;
+        cc_render::compile(&src, &fonts, &files).map_err(|e| format!("Typst: {}", e.join("; ")))?;
     let t_layout = t.elapsed();
     let t = Instant::now();
     let pdf = cc_render::to_pdf(&doc)?;

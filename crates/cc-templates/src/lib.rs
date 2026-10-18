@@ -4,6 +4,8 @@
 //! docs/07-vorlage-gemeindekalender.md).
 
 pub mod common;
+pub mod events;
 pub mod gemeinde;
 pub mod jahr;
+pub mod monat;
 pub mod times;

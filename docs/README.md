@@ -60,6 +60,19 @@ Offen dazu:
 3. Das PDF ist ein Werk der Gemeinde. Für die private Prüfung nutze ich es nur lokal (nicht in Git). Vor einer Veröffentlichung sollte die Gemeinde zustimmen.
 4. Das Beispiel nutzt kostenpflichtige Schriften (Favorit). CalendarCraft liefert freie Schriften mit, das Aussehen weicht daher leicht ab.
 
+## Monatskalender nach Ihren Beispielen (18.10.2026)
+
+`cc-cli monatskalender` erzeugt einen Monat pro Seite (Sonntag bis Schabbat) in zwei Stilen nach Ihren Vorlagen:
+
+- **klassisch** (A4 quer): gregorianischer Tag groß, hebräischer Tag in Buchstaben, hebräisches Datum hochkant, Einträge rechts oben, Zeiten mit Symbolen, Schabbat und Feiertage grau, Legende am rechten Rand.
+- **foto** (A4 hoch): Fotofläche mit 1 bis 6 Fotos, Monatsraster mit grauem Balken für das hebräische Datum, Zeiten unten rechts.
+
+Neu im Kern: Schabbat Mewarchim (gegen Hebcal über 251 Jahre geprüft), Gedenktag an das Massaker vom 7. Oktober (ab 5786, auf Sonntag verschoben, wenn er auf Schabbat fällt), Zeitumstellung, hebräische Zahlbuchstaben, eigene Einträge aus einer Textdatei (Jahrzeit nach hebräischem Datum, Geburtstage, Termine, Ferien).
+
+Abgleich mit Ihren Beispielen für Oktober und September 2026: Feiertage, Parascha, Mewarchim und Kerzenzünden stimmen. Ihr Foto-Kalender rundet Schabbatende offenbar ab (einige Zeiten 1 Minute früher) und setzt das Fastenende früher an (Zom Gedalja 20:16 statt 20:21 nach Frankfurter Methode). Für eine andere Gemeinde müsste ein eigenes Zeitenprofil eingestellt werden; das ist noch nicht über die Kommandozeile wählbar.
+
+Offen: Schulferien als Daten (bisher nur über die Eintragsdatei), Zeitenprofil und Rundung wählbar, Deckblatt.
+
 ## Jahreskalender im Stil von Kalenderpedia (18.10.2026)
 
 `cc-cli jahreskalender --year 2027` erzeugt einen Jahreskalender Januar–Dezember: gregorianische Monate als Spalten, eine Zeile je Tag, Kalenderwochen, gesetzliche Feiertage (Hessen, rot) und dazu je Tag das hebräische Datum, jüdische Feiertage, Parascha, Omer, Kerzenzünden und Schabbatende. Er kann auf 1 oder 2 Seiten stehen und mit einem beliebigen Startmonat beginnen.

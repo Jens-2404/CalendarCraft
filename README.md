@@ -51,12 +51,33 @@ cargo run --release -p cc-cli -- jahreskalender --year 2027 --out ausgabe/Jahres
 cargo run --release -p cc-cli -- gemeindekalender --year 5787 --out ausgabe/Kalender_5787.pdf
 ```
 
-Gestaltung (für beide Kalender):
+Monatskalender, ein Monat pro Seite (Stil "klassisch" quer oder "foto" hoch mit Fotofläche):
+
+```bash
+cargo run --release -p cc-cli -- monatskalender --jahr 5787 --stil klassisch --out ausgabe/Monatskalender_5787.pdf
+```
+
+```bash
+cargo run --release -p cc-cli -- monatskalender --jahr 5787 --stil foto --fotos meine-fotos --fotos-pro-monat 6 --eintraege eintraege.txt --out ausgabe/Fotokalender_5787.pdf
+```
+
+`--jahr 5787` beginnt mit dem Monat von Rosch HaSchana und umfasst 13 Monate; alternativ `--von 2026-09 --monate 12`. Fotos werden nach Dateinamen sortiert der Reihe nach auf die Monate verteilt.
+
+Eigene Einträge (`--eintraege`), eine Zeile je Eintrag:
+
+```text
+hebr;8 Tischrei;Jahrzeit Israel ben Zechariahu
+jährlich;19.09.;Geburtstag Anna
+einmal;2026-10-05;Elternabend
+ferien;2026-10-05;2026-10-17;Herbstferien
+```
+
+Gestaltung (für alle Kalender):
 
 | Option | Wirkung |
 |---|---|
 | `--format a4` | Papierformat: a0–a5, letter, legal, tabloid oder eigene Maße wie `300x200` (mm); Standard a4 quer |
-| `--hoch` | Hochformat |
+| `--hoch` / `--quer` | Hoch- oder Querformat |
 | `--schrift "Segoe UI"` | Schriftfamilie des Inhalts (jede installierte Schrift) |
 | `--titelschrift "Times New Roman"` | Schrift der Monatsköpfe |
 | `--schriftgroesse 1.2` | alle Schriften 20 % größer (0.5 bis 3.0) |

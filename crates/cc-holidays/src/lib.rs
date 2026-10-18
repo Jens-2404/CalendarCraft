@@ -88,6 +88,8 @@ pub struct DayInfo {
     pub yizkor: bool,
     /// Erste Selichot (Samstagnacht), Zeit wird im Zmanim-Teil berechnet
     pub first_selichot: bool,
+    /// Schabbat Mewarchim: Monatscode des angekündigten Monats
+    pub mevarchim: Option<String>,
 }
 
 impl DayInfo {
@@ -133,6 +135,7 @@ pub fn year_days(year: i32) -> Vec<DayInfo> {
             yom_tov: false,
             yizkor: false,
             first_selichot: false,
+            mevarchim: None,
         })
         .collect();
 
@@ -142,6 +145,7 @@ pub fn year_days(year: i32) -> Vec<DayInfo> {
     ctx.add_rosh_chodesh(&mut days);
     ctx.add_special_shabbatot(&mut days);
     ctx.add_selichot(&mut days);
+    ctx.add_mevarchim(&mut days);
     days
 }
 
@@ -341,6 +345,16 @@ impl Ctx {
         self.put(days, IYAR, 14, h(Class::Minor, "Pessach Scheni"));
         self.put(days, IYAR, 18, h(Class::Minor, "Lag Baomer"));
         self.put(days, IYAR, 28, h(Class::Modern, "Jom Jeruschalajim"));
+        // Gedenktag an das Massaker vom 7. Oktober (gesetzlich ab 5786): 24. Tischri,
+        // fällt er auf Schabbat, am Sonntag
+        if self.year >= 5786
+            && let Some(d) = self.day_of(days, TISHREI, 24)
+        {
+            let t = if weekday(d) == SATURDAY { d + 1 } else { d };
+            days[self.idx(t)]
+                .holidays
+                .push(h(Class::Modern, "Gedenktag an das Massaker vom 7. Oktober"));
+        }
 
         // Siwan
         self.put(days, SIVAN, 5, h(Class::Erev, "Erew Schawuot"));
@@ -403,6 +417,29 @@ impl Ctx {
         // HaGadol: Schabbat vor Pessach (8.–14. Nisan)
         if let Some(e) = self.day_of(days, NISAN, 14) {
             days[self.idx(sat_on_or_before(e))].special_shabbat = Some("Schabbat haGadol");
+        }
+    }
+
+    /// Schabbat Mewarchim: letzter Schabbat vor dem (ersten) Tag Rosch
+    /// Chodesch, für alle Monate außer Tischri.
+    fn add_mevarchim(&self, days: &mut [DayInfo]) {
+        for i in 0..days.len() {
+            let h = &days[i].hebrew;
+            if h.day != 1 || h.month_code == month::TISHREI {
+                continue;
+            }
+            let code = h.month_code.clone();
+            let first_rc = if i > 0 && days[i - 1].hebrew.day == 30 {
+                days[i].day - 1
+            } else {
+                days[i].day
+            };
+            // Schabbat strikt vor dem ersten Tag Rosch Chodesch
+            let back = i64::from((weekday(first_rc) + 1) % 7);
+            let sat = first_rc - if back == 0 { 7 } else { back };
+            if sat >= self.start && sat < self.start + days.len() as i64 {
+                days[self.idx(sat)].mevarchim = Some(code);
+            }
         }
     }
 

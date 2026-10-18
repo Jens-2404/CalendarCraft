@@ -472,6 +472,7 @@ name = "cc-cli"
 version = "0.0.1"
 dependencies = [
  "cc-calendar",
+ "cc-holidays",
  "cc-render",
  "cc-templates",
  "serde_json",
@@ -531,6 +532,7 @@ dependencies = [
  "cc-astro",
  "cc-calendar",
  "cc-holidays",
+ "cc-i18n",
  "serde_json",
 ]
 

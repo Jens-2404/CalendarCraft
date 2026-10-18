@@ -65,6 +65,7 @@ fn map_modern(title: &str) -> Option<&'static str> {
         "Yom HaZikaron" => "Jom HaSikaron",
         "Yom HaAtzma’ut" => "Jom HaAzmaut",
         "Yom Yerushalayim" => "Jom Jeruschalajim",
+        "Swords of Iron War Memorial Day" => "Gedenktag an das Massaker vom 7. Oktober",
         _ => return None,
     })
 }
@@ -158,6 +159,24 @@ fn matches_hebcal_diaspora() {
         }
         for g in got_parasha.difference(&expected_parasha) {
             problems.push(format!("{year}: Parascha zu viel am {g}"));
+        }
+        // Schabbat Mewarchim
+        let mev_expected: BTreeSet<String> = items
+            .iter()
+            .filter(|i| i["category"] == "mevarchim")
+            .map(|i| i["date"].as_str().unwrap()[..10].to_string())
+            .filter(|s| inside(s))
+            .collect();
+        let mev_got: BTreeSet<String> = days
+            .iter()
+            .filter(|d| d.mevarchim.is_some())
+            .map(|d| {
+                let (y, m, dd) = d.gregorian;
+                format!("{y:04}-{m:02}-{dd:02}")
+            })
+            .collect();
+        for e in mev_expected.symmetric_difference(&mev_got) {
+            problems.push(format!("{year}: Mewarchim abweichend am {e}"));
         }
         // Rosch Chodesch: Anzahl der Tage
         let rc_expected = items

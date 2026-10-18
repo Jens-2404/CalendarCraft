@@ -10,6 +10,7 @@ publish = false
 cc-calendar.workspace = true
 cc-holidays = { path = "../cc-holidays" }
 cc-astro = { path = "../cc-astro" }
+cc-i18n = { path = "../cc-i18n" }
 
 [dev-dependencies]
 serde_json.workspace = true
