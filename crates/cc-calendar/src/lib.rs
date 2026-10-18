@@ -97,6 +97,30 @@ mod tests {
         );
     }
 
+    /// Daten aus dem Gemeindekalender Frankfurt 5784 (Kalender_5784.pdf).
+    /// Die Gemeinde gibt gregorianische Tage mit hebräischem Monat an;
+    /// hier die Stichproben, die im Text des PDFs eindeutig stehen.
+    #[test]
+    fn frankfurt_kalender_5784() {
+        let cases = [
+            // (gregorianisch, erwartet: Tag, Monatscode, Jahr, Bezeichnung)
+            ((2023, 9, 15), (29, "M12", 5783)), // Elul-Ende vor Rosch HaSchana
+            ((2023, 9, 16), (1, "M01", 5784)),  // 1. Tag Rosch HaSchana
+            ((2023, 9, 25), (10, "M01", 5784)), // Jom Kippur
+            ((2023, 10, 1), (16, "M01", 5784)), // Tag nach Sukkot-Anfang
+            ((2024, 3, 24), (14, "M06", 5784)), // Purim (Adar II im Schaltjahr)
+            ((2024, 4, 23), (15, "M07", 5784)), // 1. Tag Pessach
+        ];
+        for ((y, m, d), (day, month, year)) in cases {
+            let h = gregorian_to_hebrew(y, m, d).unwrap();
+            assert_eq!(
+                (h.day, h.month_code.as_str(), h.year),
+                (day, month, year),
+                "{y}-{m:02}-{d:02}"
+            );
+        }
+    }
+
     #[test]
     fn pessach_5786() {
         // 15. Nisan 5786 = 2. April 2026
