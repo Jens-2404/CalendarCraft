@@ -94,7 +94,7 @@ impl Style {
     /// (Schriftfaktor) sowie die Grundschrift.
     pub fn preamble(&self, paper: &Paper) -> String {
         format!(
-            "#let S = {s:.5}\n#let F = {f:.3}\n#let FONT = ({font}, \"DejaVu Sans Mono\")\n#let HFONT = ({hfont}, \"Libertinus Serif\")\n\
+            "#let S = {s:.5}\n#let F = {f:.3}\n#let FONT = ({font}, \"Libertinus Serif\", \"DejaVu Sans Mono\")\n#let HFONT = ({hfont}, \"Libertinus Serif\")\n\
              #set page(width: {w}mm, height: {h}mm, margin: (x: 5.5mm * S, top: 5mm * S, bottom: 4mm * S))\n\
              #set text(font: FONT, size: 6pt * S * F, lang: \"de\", fill: rgb(\"#1b1b1b\"))\n\
              #set block(spacing: 0pt)\n",
@@ -163,6 +163,8 @@ pub const SHABBAT_FILL: &str = "#9fc4ec";
 pub const YOM_TOV_FILL: &str = "#c9d8f2";
 pub const GREY_FILL: &str = "#dedede";
 pub const EREV_FILL: &str = "#eceaf7";
+/// Leichte Hinterlegung für alle übrigen Tage, damit sich Tage vom Papier abheben.
+pub const DAY_FILL: &str = "#f7f7f7";
 
 /// Hintergrund einer Zeile nach jüdischem Tagestyp.
 pub fn jewish_fill(d: &DayInfo) -> Option<&'static str> {

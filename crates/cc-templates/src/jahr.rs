@@ -10,8 +10,8 @@ use cc_calendar::{Day, MONDAY, SUNDAY, day_from_gregorian, iso_week};
 use cc_holidays::{DayInfo, days_between, german};
 
 use crate::common::{
-    EREV_FILL, GREG_MONTHS, GREY_FILL, LEGEND, Paper, SHABBAT_FILL, Style, TYPST_TIME_FN, WD_DE,
-    YOM_TOV_FILL, jewish_row, month_name_de, pessach_footnote, q,
+    DAY_FILL, EREV_FILL, GREG_MONTHS, GREY_FILL, LEGEND, Paper, SHABBAT_FILL, Style, TYPST_TIME_FN,
+    WD_DE, YOM_TOV_FILL, jewish_row, month_name_de, pessach_footnote, q,
 };
 use crate::gemeinde::footer;
 use crate::times::{DayTimes, day_times};
@@ -115,8 +115,10 @@ fn row(d: &DayInfo, t: &DayTimes, state_holiday: Option<&str>) -> String {
             format!("{} · {sub}", j.omer)
         };
     }
-    let fill =
-        fill(d, state_holiday.is_some()).map_or("none".to_string(), |c| format!("rgb({})", q(c)));
+    let fill = format!(
+        "rgb({})",
+        q(fill(d, state_holiday.is_some()).unwrap_or(DAY_FILL))
+    );
     format!(
         "rj(fill: {fill}, gd: {}, wd: {}, top: {}, topred: {}, name: {}, red: {}, sub: {}, time: {}, tk: {}, candle: {}, ctr: {}, bold: {}, gdred: {})\n",
         q(&d.gregorian.2.to_string()),
@@ -182,7 +184,7 @@ pub fn typst_source(year: i32, o: &Options) -> String {
 #let LW = 5.6mm * S
 #let rj(fill: none, gd: "", wd: "", top: "", topred: "", name: "", red: "", sub: "", time: "", tk: "", candle: false, ctr: false, bold: false, gdred: false) = block(
   width: 100%, height: ROWH, fill: fill, clip: true,
-  stroke: (bottom: 0.12pt * S + luma(190), right: 0.12pt * S + luma(200)), inset: (x: 0.5mm * S, y: 0pt),
+  stroke: (bottom: 0.3pt * S + luma(165), right: 0.3pt * S + luma(175)), inset: (x: 0.5mm * S, y: 0pt),
   {{
     set par(leading: 0.12em, spacing: 0pt)
     grid(

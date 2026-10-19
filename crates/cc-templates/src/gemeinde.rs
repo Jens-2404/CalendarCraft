@@ -10,8 +10,8 @@ use cc_calendar::{Day, gregorian_from_day, hebrew_year_days};
 use cc_holidays::{DayInfo, german, year_days};
 
 use crate::common::{
-    GREG_MONTHS, LEGEND, TYPST_TIME_FN, WD_DE, WD_HE, jewish_fill, jewish_row, month_name_de,
-    pessach_footnote, q,
+    DAY_FILL, GREG_MONTHS, LEGEND, TYPST_TIME_FN, WD_DE, WD_HE, jewish_fill, jewish_row,
+    month_name_de, pessach_footnote, q,
 };
 pub use crate::common::{Paper, Style};
 use crate::times::{DayTimes, day_times};
@@ -117,7 +117,7 @@ fn columns(days: &[DayInfo]) -> Vec<Column> {
 
 fn row(d: &DayInfo, t: &DayTimes) -> String {
     let j = jewish_row(d, t);
-    let fill = jewish_fill(d).map_or("none".to_string(), |c| format!("rgb({})", q(c)));
+    let fill = format!("rgb({})", q(jewish_fill(d).unwrap_or(DAY_FILL)));
     format!(
         "r(fill: {fill}, gd: {}, wd: {}, top: {}, name: {}, sub: {}, time: {}, tk: {}, candle: {}, hnum: {}, hwd: {}, rc: {}, omer: {}, ctr: {}, bold: {})\n",
         q(&d.gregorian.2.to_string()),
@@ -196,7 +196,7 @@ pub fn typst_source(year: i32, o: &Options) -> String {
 #let RW = 7.4mm * S
 #let r(fill: none, gd: "", wd: "", top: "", name: "", sub: "", time: "", tk: "", candle: false, hnum: "", hwd: "", rc: "", omer: "", ctr: false, bold: false) = block(
   width: 100%, height: ROWH, fill: fill, clip: true,
-  stroke: (bottom: 0.12pt * S + luma(190)), inset: (x: 0.5mm * S, y: 0pt),
+  stroke: (bottom: 0.3pt * S + luma(165)), inset: (x: 0.5mm * S, y: 0pt),
   {{
     set par(leading: 0.1em, spacing: 0pt)
     grid(

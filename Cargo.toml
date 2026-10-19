@@ -4,6 +4,7 @@ members = [
     "crates/*",
     "apps/ui",
     "apps/web",
+    "apps/worker",
     "apps/desktop/src-tauri",
     "apps/cli",
     "spikes/render-typst",

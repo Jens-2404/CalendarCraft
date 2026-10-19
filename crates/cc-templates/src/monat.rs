@@ -421,7 +421,7 @@ pub fn typst_source(start: (i32, u8), months: u8, o: &Options) -> String {
 }
 
 const CELL_FNS: &str = r##"#let cellk(h: 10mm, grey: false, gd: "", hd: "", hn: "", evs: (), times: ()) = block(
-  width: 100%, height: h, fill: if grey { luma(232) } else { none }, stroke: 0.4pt + luma(170),
+  width: 100%, height: h, fill: if grey { luma(232) } else { luma(249) }, stroke: 0.4pt + luma(170),
   inset: (left: 0.8mm * S, right: 1.2mm * S, top: 1.2mm * S, bottom: 1.2mm * S), clip: true, {
   place(top + left, rotate(-90deg, reflow: true, text(size: 4.6pt * S * F, fill: luma(110))[#hd]))
   place(top + left, dx: 3.4mm * S, stack(dir: ttb, spacing: 0.8mm * S,
@@ -433,16 +433,16 @@ const CELL_FNS: &str = r##"#let cellk(h: 10mm, grey: false, gd: "", hd: "", hn: 
   })))
   place(bottom + left, stack(dir: ttb, spacing: 0.6mm * S, ..times.map(e => time-item(e, 5.4pt * S * F, false))))
 })
-#let cellf(h: 10mm, gd: "", hd: "", evs: (), times: ()) = block(width: 100%, height: h, clip: true, {
+#let cellf(h: 10mm, gd: "", hd: "", evs: (), times: ()) = block(width: 100%, height: h, clip: true, fill: luma(248), stroke: 0.4pt + luma(175), {
   block(width: 100%, height: 3.6mm * S, fill: luma(208), inset: (x: 1mm * S), align(horizon + left, text(size: 5.6pt * S * F, fill: luma(45))[#hd]))
-  v(0.8mm * S)
-  text(size: 17pt * S * F, fill: luma(80))[#gd]
-  linebreak()
-  {
+  pad(x: 1mm * S, {
+    v(0.8mm * S)
+    text(size: 17pt * S * F, fill: luma(80))[#gd]
+    linebreak()
     set par(leading: 0.25em)
     evs.map(ev-item).join(linebreak())
-  }
-  place(bottom + right, stack(dir: ttb, spacing: 0.6mm * S, ..times.map(e => align(right, time-item(e, 6pt * S * F, true)))))
+  })
+  place(bottom + right, dx: -1mm * S, dy: -0.6mm * S, stack(dir: ttb, spacing: 0.6mm * S, ..times.map(e => align(right, time-item(e, 6pt * S * F, true)))))
 })
 "##;
 

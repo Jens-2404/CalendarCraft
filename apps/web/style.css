@@ -57,6 +57,90 @@ body {
 
 .langs button.active { background: var(--accent); color: var(--surface); border-color: var(--accent); }
 
+.tabs { display: flex; gap: 0.25rem; }
+.tabs button {
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text);
+  padding-block: 0.35rem;
+  padding-inline: 0.8rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font: inherit;
+}
+.tabs button.active { background: var(--accent); color: var(--surface); border-color: var(--accent); }
+
+/* Kalender gestalten */
+.designer {
+  display: grid;
+  grid-template-columns: minmax(18rem, 23rem) 1fr;
+  gap: 1rem;
+  padding: 1rem;
+  align-items: start;
+}
+@media (max-width: 900px) {
+  .designer { grid-template-columns: 1fr; }
+}
+.settings {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  max-block-size: calc(100vh - 5.5rem);
+  overflow-y: auto;
+  padding-inline-end: 0.25rem;
+}
+.settings fieldset {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  padding: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin: 0;
+}
+.settings legend { font-weight: 600; padding-inline: 0.3rem; }
+.settings label { font-size: 0.9rem; }
+.settings select, .settings input[type=number], .settings input[type=text], .settings textarea {
+  font: inherit;
+  padding: 0.3rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--text);
+  max-inline-size: none;
+  inline-size: 100%;
+}
+.settings textarea.events { font-family: ui-monospace, Consolas, monospace; font-size: 0.85rem; }
+.settings small { color: var(--muted); font-size: 0.8rem; white-space: pre-line; }
+.settings .row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+.settings input[type=range] { inline-size: 100%; }
+.actions { display: flex; gap: 0.5rem; }
+.actions button, .toolbar button {
+  font: inherit;
+  padding-block: 0.4rem;
+  padding-inline: 0.9rem;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+}
+.actions button.primary { background: var(--accent); color: var(--surface); border-color: var(--accent); }
+.toolbar button:disabled { opacity: 0.4; cursor: default; }
+.preview { display: flex; flex-direction: column; gap: 0.5rem; min-inline-size: 0; }
+.toolbar { display: flex; align-items: center; gap: 0.6rem; }
+.toolbar .status { color: var(--muted); font-size: 0.9rem; margin-inline-start: auto; }
+.error { color: #b3261e; background: #fbe9e7; border-radius: 6px; padding: 0.5rem; margin: 0; }
+.page {
+  background: white;
+  box-shadow: 0 2px 10px rgb(0 0 0 / 0.18);
+  border-radius: 2px;
+  line-height: 0;
+}
+.page svg { inline-size: 100%; block-size: auto; display: block; }
+.converter { margin: 1rem; max-inline-size: 30rem; }
+
 .panes {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));

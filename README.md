@@ -21,12 +21,18 @@ Stand: Phase 0 (Setup und Spikes), privat.
 - Trunk und Tauri CLI: `cargo install --locked trunk tauri-cli`
 - Linux zusätzlich: `libwebkit2gtk-4.1-dev`, `librsvg2-dev`, `libayatana-appindicator3-dev`
 
+## Kalender gestalten (Oberfläche)
+
+Im Reiter „Kalender gestalten“ wählt man links Kalenderart, Jahr, Format, Ausrichtung, Schrift, Schrift der Monatsköpfe, Schriftgröße, Fotos und eigene Einträge; rechts erscheint die Vorschau Seite für Seite. „PDF speichern“ lädt das PDF herunter (Browser) bzw. öffnet einen Speichern-Dialog (Desktop-App). Die Einstellungen bleiben im Browser bzw. in der App gespeichert.
+
+Schriften: Im Browser stehen die mitgelieferten Schriften (Libertinus Serif mit Hebräisch) zur Wahl; eigene Schriftdateien (TTF/OTF) lassen sich hinzufügen. In der Desktop-App erscheinen zusätzlich alle installierten Schriften.
+
 ## Starten
 
-Web-App (http://localhost:1420):
+Web-App (http://localhost:1420; `--release`, weil Typst im Debug-Build sehr langsam ist):
 
 ```bash
-cd apps/web && trunk serve
+cd apps/web && trunk serve --release
 ```
 
 Desktop-App (startet Trunk selbst):

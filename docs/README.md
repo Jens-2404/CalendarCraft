@@ -60,6 +60,17 @@ Offen dazu:
 3. Das PDF ist ein Werk der Gemeinde. Für die private Prüfung nutze ich es nur lokal (nicht in Git). Vor einer Veröffentlichung sollte die Gemeinde zustimmen.
 4. Das Beispiel nutzt kostenpflichtige Schriften (Favorit). CalendarCraft liefert freie Schriften mit, das Aussehen weicht daher leicht ab.
 
+## Oberfläche zum Gestalten (18.10.2026)
+
+Alle Kalenderarten lassen sich jetzt ohne Kommandozeile gestalten, im Browser und in der Desktop-App: Kalenderart, Jahr, Startmonat, Anzahl Monate, Seiten, Format, Hoch/Quer, Schrift, Titelschrift, Schriftgröße, Gemeindename und Adresse, Fotos und eigene Einträge. Die Vorschau aktualisiert sich nach jeder Änderung (etwa 0,6 Sekunden), „PDF speichern“ erzeugt das PDF.
+
+Technik und Abweichungen von der Planung:
+
+- Der Kalender wird in einem Web Worker gesetzt (apps/worker, wie in ADR-002 vorgesehen), auch in der Desktop-App (gleiches Verhalten, keine doppelte Logik). Die Oberfläche schickt nur Einstellungen, Fotos und Schriftdateien an den Worker und bekommt Seitenzahl, SVG der angezeigten Seite und beim Speichern das PDF zurück. Sie bleibt beim Neusetzen bedienbar.
+- Die Desktop-App ergänzt Systemschriften (die Oberfläche lädt die Datei über Tauri und gibt sie an den Worker) und den Speichern-Dialog.
+- Oberfläche und Worker sind getrennte WebAssembly-Module: die Oberfläche 178 KB gzip (ohne Typst), der Worker 10,5 MB gzip (Typst mit Schriften). Die Oberfläche ist sofort bedienbar, die erste Vorschau erscheint, sobald der Worker geladen ist. Die CI prüft beide Grenzen getrennt (Oberfläche unter 1 MB, Worker höchstens 12 MB). Mitgeliefert werden nur Libertinus Serif und DejaVu Sans Mono (statt aller Typst-Schriften); Lizenzen in assets/fonts/LICENSES.md.
+- Die Gestaltungsseite ist im Prototyp nur auf Deutsch.
+
 ## Monatskalender nach Ihren Beispielen (18.10.2026)
 
 `cc-cli monatskalender` erzeugt einen Monat pro Seite (Sonntag bis Schabbat) in zwei Stilen nach Ihren Vorlagen:
