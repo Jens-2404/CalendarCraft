@@ -8,7 +8,9 @@ use std::collections::HashSet;
 use std::time::Duration;
 
 use cc_templates::common::GREG_MONTHS;
-use cc_templates::settings::{CalendarKind, CalendarSettings, PAPERS, file_name};
+use cc_templates::settings::{
+    COUNTRIES, CalendarKind, CalendarSettings, PAPERS, file_name, regions,
+};
 use cc_worker_protocol::{Reply, Request};
 use leptos::prelude::*;
 use leptos::task::spawn_local;
@@ -453,6 +455,49 @@ pub fn Designer() -> impl IntoView {
                             ></textarea>
                         </label>
                     </Show>
+                    <div class="row">
+                        <label>
+                            "Land"
+                            <select on:change=move |ev| {
+                                let c = event_target_value(&ev);
+                                settings.update(|s| {
+                                    if s.country != c {
+                                        s.region = regions(&c)
+                                            .first()
+                                            .map(|(r, _)| (*r).to_string())
+                                            .unwrap_or_default();
+                                        s.country = c;
+                                    }
+                                });
+                            }>
+                                {COUNTRIES
+                                    .iter()
+                                    .map(|(id, label)| {
+                                        let id2 = *id;
+                                        view! {
+                                            <option value=*id selected=move || settings.with(|s| s.country == id2)>
+                                                {*label}
+                                            </option>
+                                        }
+                                    })
+                                    .collect_view()}
+                            </select>
+                        </label>
+                        <label>
+                            "Bundesland"
+                            <select on:change=move |ev| settings.update(|s| s.region = event_target_value(&ev))>
+                                {move || {
+                                    regions(&settings.with(|s| s.country.clone()))
+                                        .into_iter()
+                                        .map(|(id, label)| {
+                                            let sel = settings.with_untracked(|s| s.region == id);
+                                            view! { <option value=id selected=sel>{label}</option> }
+                                        })
+                                        .collect_view()
+                                }}
+                            </select>
+                        </label>
+                    </div>
                 </fieldset>
 
                 <fieldset>

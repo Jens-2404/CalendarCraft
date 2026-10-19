@@ -47,6 +47,8 @@ pub struct Options {
     pub profile: CommunityProfile,
     pub location: Location,
     pub zmanim: Profile,
+    /// Bundesland für die staatlichen Feiertage
+    pub region: german::State,
 }
 
 impl Default for Options {
@@ -57,6 +59,7 @@ impl Default for Options {
             profile: CommunityProfile::default(),
             location: Location::frankfurt(),
             zmanim: Profile::frankfurt(),
+            region: german::State::Hessen,
         }
     }
 }
@@ -138,8 +141,8 @@ fn row(d: &DayInfo, t: &DayTimes) -> String {
 }
 
 /// "3. Oktober, 25.–26. Dezember, 1. Januar"
-pub(crate) fn state_holidays_text(from: Day, to: Day) -> String {
-    let hs = german::holidays_hesse_between(from, to);
+pub(crate) fn state_holidays_text(from: Day, to: Day, region: german::State) -> String {
+    let hs = german::holidays_between(from, to, region);
     let mut parts: Vec<String> = Vec::new();
     let mut i = 0;
     while i < hs.len() {
@@ -321,8 +324,9 @@ pub fn typst_source(year: i32, o: &Options) -> String {
             &[
                 LEGEND.to_string(),
                 format!(
-                    "Staatliche Feiertage {label}: {}",
-                    state_holidays_text(from, to)
+                    "Staatliche Feiertage {} {label}: {}",
+                    o.region.name(),
+                    state_holidays_text(from, to, o.region)
                 ),
                 footnote,
             ],

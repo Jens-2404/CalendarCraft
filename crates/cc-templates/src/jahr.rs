@@ -29,6 +29,8 @@ pub struct Options {
     pub pages: u8,
     /// Überschrift links oben, z. B. "Jüdischer Kalender"
     pub title: String,
+    /// Bundesland für die gesetzlichen Feiertage
+    pub region: german::State,
 }
 
 impl Default for Options {
@@ -40,6 +42,7 @@ impl Default for Options {
             zmanim: Profile::frankfurt(),
             start_month: 1,
             months: 12,
+            region: german::State::Hessen,
             pages: 2,
             title: "Jüdischer Kalender".into(),
         }
@@ -157,9 +160,10 @@ pub fn typst_source(year: i32, o: &Options) -> String {
     let times: Vec<DayTimes> = (0..days.len())
         .map(|i| day_times(&days, i, &o.location, &o.zmanim))
         .collect();
-    let state: std::collections::HashMap<Day, &str> = german::holidays_hesse_between(first, last)
-        .into_iter()
-        .collect();
+    let state: std::collections::HashMap<Day, &str> =
+        german::holidays_between(first, last, o.region)
+            .into_iter()
+            .collect();
 
     let s = o.paper.scale();
     let (header_h, colhead_h, footer_h, gap) = (17.0, 8.0, 10.0, 1.5);
@@ -249,10 +253,11 @@ pub fn typst_source(year: i32, o: &Options) -> String {
         cols.len().div_ceil(usize::from(o.pages))
     };
     let location_line = format!(
-        "Zeiten für {}: Kerzenzünden {} Min. vor Sonnenuntergang, Schabbat- und Feiertagsende bei {}° unter dem Horizont · Gesetzliche Feiertage: Hessen · KW = Kalenderwoche",
+        "Zeiten für {}: Kerzenzünden {} Min. vor Sonnenuntergang, Schabbat- und Feiertagsende bei {}° unter dem Horizont · Gesetzliche Feiertage: {} · KW = Kalenderwoche",
         o.location.name,
         o.zmanim.candle_minutes,
-        o.zmanim.shabbat_end_degrees.to_string().replace('.', ",")
+        o.zmanim.shabbat_end_degrees.to_string().replace('.', ","),
+        o.region.name()
     );
     for (pi, page) in cols.chunks(per_page).enumerate() {
         if pi > 0 {
@@ -288,4 +293,36 @@ pub fn typst_source(year: i32, o: &Options) -> String {
         );
     }
     out
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn state_rows(region: german::State) -> Vec<String> {
+        let o = Options {
+            region,
+            ..Options::default()
+        };
+        typst_source(2027, &o)
+            .lines()
+            .filter(|l| l.contains(STATE_HOLIDAY_FILL))
+            .map(|l| {
+                l.split("gd: ")
+                    .nth(1)
+                    .unwrap_or("")
+                    .chars()
+                    .take(4)
+                    .collect()
+            })
+            .collect()
+    }
+
+    #[test]
+    fn region_changes_state_holidays() {
+        let he = state_rows(german::State::Hessen);
+        let by = state_rows(german::State::Bayern);
+        eprintln!("HE {he:?}\nBY {by:?}");
+        assert!(by.len() > he.len());
+    }
 }

@@ -62,7 +62,7 @@ Offen dazu:
 
 ## Oberfläche zum Gestalten (18.10.2026)
 
-Alle Kalenderarten lassen sich jetzt ohne Kommandozeile gestalten, im Browser und in der Desktop-App: Kalenderart, Jahr, Startmonat, Anzahl Monate, Seiten, Format, Hoch/Quer, Schrift, Titelschrift, Schriftgröße, Gemeindename und Adresse, Fotos und eigene Einträge. Die Vorschau aktualisiert sich nach jeder Änderung (etwa 0,6 Sekunden), „PDF speichern“ erzeugt das PDF.
+Alle Kalenderarten lassen sich jetzt ohne Kommandozeile gestalten, im Browser und in der Desktop-App: Kalenderart, Jahr, Startmonat, Anzahl Monate, Seiten, Format, Hoch/Quer, Schrift, Titelschrift, Schriftgröße, Gemeindename und Adresse, Fotos, eigene Einträge sowie Land und Bundesland für die gesetzlichen Feiertage (bisher nur Deutschland mit allen 16 Ländern, Standard Hessen; weitere Länder folgen). Die Vorschau aktualisiert sich nach jeder Änderung (etwa 0,6 Sekunden), „PDF speichern“ erzeugt das PDF.
 
 Technik und Abweichungen von der Planung:
 

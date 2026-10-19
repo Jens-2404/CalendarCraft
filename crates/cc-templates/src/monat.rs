@@ -37,6 +37,8 @@ pub struct Options {
     pub photos_per_month: usize,
     /// Eigene Einträge je Tag (siehe `events`)
     pub events: HashMap<Day, Vec<String>>,
+    /// Bundesland für die gesetzlichen Feiertage
+    pub region: german::State,
 }
 
 impl Options {
@@ -53,6 +55,7 @@ impl Options {
             photos: Vec::new(),
             photos_per_month: 1,
             events: HashMap::new(),
+            region: german::State::Hessen,
         }
     }
 }
@@ -243,7 +246,7 @@ pub fn typst_source(start: (i32, u8), months: u8, o: &Options) -> String {
     let times: Vec<DayTimes> = (0..days.len())
         .map(|i| day_times(&days, i, &o.location, &o.zmanim))
         .collect();
-    let state: HashMap<Day, &str> = german::holidays_hesse_between(first, last)
+    let state: HashMap<Day, &str> = german::holidays_between(first, last, o.region)
         .into_iter()
         .collect();
     let tz = o.location.time_zone;

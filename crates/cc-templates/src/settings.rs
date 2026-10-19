@@ -2,6 +2,7 @@
 //! bearbeitet nur dieses Objekt; `typst_source` erzeugt daraus den
 //! Typst-Quelltext der gewählten Vorlage.
 
+use cc_holidays::german;
 use serde::{Deserialize, Serialize};
 
 use crate::common::{Paper, Style};
@@ -68,6 +69,21 @@ pub const PAPERS: [(&str, &str); 9] = [
     ("tabloid", "US Tabloid"),
 ];
 
+/// Länder für die gesetzlichen Feiertage (Kürzel, Anzeige). Weitere Länder
+/// (England, USA, Frankreich …) folgen.
+pub const COUNTRIES: [(&str, &str); 1] = [("DE", "Deutschland")];
+
+/// Regionen (Bundesländer, Staaten) eines Landes (Kürzel, Anzeige).
+pub fn regions(country: &str) -> Vec<(&'static str, &'static str)> {
+    match country {
+        "DE" => german::State::ALL
+            .into_iter()
+            .map(|s| (s.code(), s.name()))
+            .collect(),
+        _ => Vec::new(),
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(default)]
 pub struct CalendarSettings {
@@ -93,6 +109,10 @@ pub struct CalendarSettings {
     /// Eigene Einträge (Format siehe `events`)
     pub events_text: String,
     pub photos_per_month: u8,
+    /// Land für die gesetzlichen Feiertage (Kürzel aus `COUNTRIES`)
+    pub country: String,
+    /// Region im Land, z. B. Bundesland "HE" (Kürzel aus `regions`)
+    pub region: String,
 }
 
 impl Default for CalendarSettings {
@@ -113,6 +133,8 @@ impl Default for CalendarSettings {
             info: "Frankfurt am Main".into(),
             events_text: String::new(),
             photos_per_month: 6,
+            country: "DE".into(),
+            region: "HE".into(),
         }
     }
 }
@@ -134,6 +156,11 @@ impl CalendarSettings {
             heading_font: self.heading_font.clone(),
             font_scale: self.font_scale.clamp(0.5, 3.0),
         }
+    }
+
+    /// Bundesland für die gesetzlichen Feiertage (unbekannt: Hessen).
+    pub fn german_state(&self) -> german::State {
+        german::State::from_code(&self.region).unwrap_or(german::State::Hessen)
     }
 
     /// (Jahr, Monat) des ersten Monats eines Monatskalenders.
@@ -165,6 +192,7 @@ pub fn typst_source(s: &CalendarSettings, photos: &[String]) -> Result<String, S
             o.style = style;
             o.photos = photos.to_vec();
             o.photos_per_month = usize::from(s.photos_per_month.max(1));
+            o.region = s.german_state();
             let start = s.first_month();
             let months = s.months.clamp(1, 24);
             if !s.events_text.trim().is_empty() {
@@ -188,6 +216,7 @@ pub fn typst_source(s: &CalendarSettings, photos: &[String]) -> Result<String, S
                 pages: s.pages.clamp(1, 2),
                 start_month: s.start_month.clamp(1, 12),
                 title: s.title.clone(),
+                region: s.german_state(),
                 ..jahr::Options::default()
             };
             Ok(jahr::typst_source(s.year, &o))
@@ -223,6 +252,7 @@ pub fn typst_source(s: &CalendarSettings, photos: &[String]) -> Result<String, S
                     info_blocks,
                     header_mark: "בס״ד".into(),
                 },
+                region: s.german_state(),
                 ..gemeinde::Options::default()
             };
             Ok(gemeinde::typst_source(s.year, &o))
