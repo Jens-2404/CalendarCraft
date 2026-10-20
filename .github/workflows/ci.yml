@@ -65,12 +65,17 @@ jobs:
       - name: Build
         working-directory: apps/web
         run: trunk build --release
-      - name: Größe prüfen (Grenze 8 MB komprimiert, PRD NF-3)
+      # Oberfläche und Satz-Worker getrennt messen (ADR-002): Die Oberfläche
+      # ist sofort bedienbar, Typst mit Schriften lädt im Worker nach.
+      - name: Größe prüfen (Oberfläche unter 1 MB, Worker höchstens 12 MB, gzip)
         working-directory: apps/web/dist
         run: |
-          size=$(cat *.wasm | gzip -9 | wc -c)
-          echo "WASM gzip: $size Bytes"
-          test "$size" -lt 8388608
+          ui=$(cat cc-web*_bg.wasm | gzip -9 | wc -c)
+          worker=$(gzip -9 -c cc-worker_bg.wasm | wc -c)
+          echo "Oberfläche (cc-web) gzip: $ui Bytes"
+          echo "Satz-Worker (cc-worker) gzip: $worker Bytes"
+          test "$ui" -lt 1048576
+          test "$worker" -le 12582912
       - uses: actions/upload-artifact@v4
         with:
           name: web-dist

@@ -11,6 +11,7 @@ cc-calendar.workspace = true
 cc-holidays = { path = "../cc-holidays" }
 cc-astro = { path = "../cc-astro" }
 cc-i18n = { path = "../cc-i18n" }
+serde.workspace = true
 
 [dev-dependencies]
 serde_json.workspace = true

@@ -8,10 +8,29 @@ publish = false
 
 [dependencies]
 cc-calendar.workspace = true
+cc-templates = { path = "../../crates/cc-templates" }
+# Kein Typst in der Oberfläche: gesetzt wird im Worker (apps/worker).
+cc-worker-protocol = { path = "../../crates/cc-worker-protocol" }
 leptos.workspace = true
 serde.workspace = true
 serde_json.workspace = true
 wasm-bindgen.workspace = true
 wasm-bindgen-futures.workspace = true
 js-sys.workspace = true
-web-sys = { workspace = true, features = ["Document", "Element", "HtmlElement", "Window"] }
+web-sys = { workspace = true, features = [
+    "Document",
+    "Element",
+    "HtmlElement",
+    "HtmlAnchorElement",
+    "HtmlInputElement",
+    "Window",
+    "Worker",
+    "MessageEvent",
+    "ErrorEvent",
+    "Blob",
+    "BlobPropertyBag",
+    "Url",
+    "File",
+    "FileList",
+    "Storage",
+] }

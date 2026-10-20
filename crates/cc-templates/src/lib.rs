@@ -8,4 +8,5 @@ pub mod events;
 pub mod gemeinde;
 pub mod jahr;
 pub mod monat;
+pub mod settings;
 pub mod times;

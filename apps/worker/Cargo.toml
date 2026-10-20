@@ -1,0 +1,20 @@
+[package]
+name = "cc-worker"
+description = "CalendarCraft: Web Worker, der Kalender mit Typst setzt (ADR-002)."
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish = false
+
+[[bin]]
+name = "cc-worker"
+path = "src/main.rs"
+
+[dependencies]
+cc-templates = { path = "../../crates/cc-templates" }
+cc-render = { path = "../../crates/cc-render", default-features = false }
+cc-worker-protocol = { path = "../../crates/cc-worker-protocol" }
+wasm-bindgen.workspace = true
+js-sys.workspace = true
+web-sys = { workspace = true, features = ["console", "DedicatedWorkerGlobalScope", "MessageEvent"] }
+console_error_panic_hook.workspace = true

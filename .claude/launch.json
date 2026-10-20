@@ -4,7 +4,7 @@
     {
       "name": "web",
       "runtimeExecutable": "trunk",
-      "runtimeArgs": ["serve", "--port", "1420"],
+      "runtimeArgs": ["serve", "--release", "--port", "1420"],
       "cwd": "apps/web",
       "port": 1420
     },

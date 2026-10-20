@@ -4,3 +4,7 @@ dist = "dist"
 
 [serve]
 port = 1420
+
+[watch]
+# Auch Änderungen in den gemeinsamen Crates neu bauen
+watch = [".", "../ui", "../worker", "../../crates", "../../assets"]

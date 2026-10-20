@@ -1,0 +1,12 @@
+[package]
+name = "cc-worker-protocol"
+description = "CalendarCraft: Nachrichten zwischen Oberfläche und Satz-Worker (ADR-002)."
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish = false
+
+[dependencies]
+cc-templates = { path = "../cc-templates" }
+serde.workspace = true
+serde_json.workspace = true

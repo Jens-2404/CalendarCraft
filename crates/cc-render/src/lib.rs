@@ -28,11 +28,22 @@ impl Document {
 pub struct Fonts(Vec<Font>);
 
 impl Fonts {
-    /// Mitgelieferte Schriften von Typst (Libertinus, New Computer Modern,
-    /// DejaVu Sans Mono).
+    /// Mitgelieferte Schriften: Libertinus Serif (mit Hebräisch und Nikud)
+    /// und DejaVu Sans Mono (Symbole). Lizenzen: assets/fonts/LICENSES.md.
     pub fn bundled() -> Self {
+        const FILES: [&[u8]; 8] = [
+            include_bytes!("../../../assets/fonts/LibertinusSerif-Regular.otf"),
+            include_bytes!("../../../assets/fonts/LibertinusSerif-Bold.otf"),
+            include_bytes!("../../../assets/fonts/LibertinusSerif-Italic.otf"),
+            include_bytes!("../../../assets/fonts/LibertinusSerif-BoldItalic.otf"),
+            include_bytes!("../../../assets/fonts/LibertinusSerif-Semibold.otf"),
+            include_bytes!("../../../assets/fonts/LibertinusSerif-SemiboldItalic.otf"),
+            include_bytes!("../../../assets/fonts/DejaVuSansMono.ttf"),
+            include_bytes!("../../../assets/fonts/DejaVuSansMono-Bold.ttf"),
+        ];
         Fonts(
-            typst_assets::fonts()
+            FILES
+                .iter()
                 .flat_map(|data| Font::iter(Bytes::new(data)))
                 .collect(),
         )
@@ -61,6 +72,15 @@ impl Fonts {
         self
     }
 
+    /// Schriften aus einer Datei (TTF, OTF, TTC) hinzufügen. Gibt die
+    /// Familiennamen der hinzugefügten Schriften zurück.
+    pub fn add_data(&mut self, data: Vec<u8>) -> Vec<String> {
+        let new: Vec<Font> = Font::iter(Bytes::new(data)).collect();
+        let names = new.iter().map(|f| f.info().family.clone()).collect();
+        self.0.extend(new);
+        names
+    }
+
     /// Alle Schriften aus den Systemordnern (inkl. vom Benutzer installierter
     /// Schriften unter Windows). Dauert je nach Anzahl etwas länger.
     pub fn with_all_system(self) -> Self {
@@ -81,6 +101,32 @@ impl Fonts {
         f.dedup();
         f
     }
+}
+
+/// Schriftfamilien der Systemordner mit Dateipfad (eine Datei je Familie
+/// und Schnitt), sortiert nach Familie. Für die Auswahl in der Desktop-App.
+pub fn system_font_catalog() -> Vec<(String, String)> {
+    let mut out = Vec::new();
+    for dir in system_font_dirs() {
+        let Ok(entries) = std::fs::read_dir(&dir) else {
+            continue;
+        };
+        for e in entries.flatten() {
+            let path = e.path();
+            let name = path.to_string_lossy().to_lowercase();
+            if !(name.ends_with(".ttf") || name.ends_with(".otf") || name.ends_with(".ttc")) {
+                continue;
+            }
+            if let Ok(data) = std::fs::read(&path) {
+                for f in Font::iter(Bytes::new(data)) {
+                    out.push((f.info().family.clone(), path.to_string_lossy().into_owned()));
+                }
+            }
+        }
+    }
+    out.sort();
+    out.dedup();
+    out
 }
 
 fn system_font_dirs() -> Vec<std::path::PathBuf> {
@@ -186,6 +232,7 @@ pub fn page_svg(doc: &Document, page: usize) -> Option<String> {
 }
 
 /// PNG einer Seite (0-basiert); `pixel_per_pt` = 1.0 entspricht 72 dpi.
+#[cfg(feature = "png")]
 pub fn page_png(doc: &Document, page: usize, pixel_per_pt: f32) -> Option<Vec<u8>> {
     let opts = typst_render::RenderOptions {
         pixel_per_pt: typst::utils::Scalar::new(f64::from(pixel_per_pt)),
@@ -200,4 +247,41 @@ pub fn page_png(doc: &Document, page: usize, pixel_per_pt: f32) -> Option<Vec<u8
 /// Hilfsfunktion: Datei lesen, falls vorhanden.
 pub fn read_file(path: &Path) -> Option<Vec<u8>> {
     std::fs::read(path).ok()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn bundled_fonts_have_hebrew() {
+        let f = Fonts::bundled();
+        assert!(f.has_family("Libertinus Serif"));
+        assert!(f.has_family("DejaVu Sans Mono"));
+    }
+
+    #[test]
+    fn system_catalog_lists_installed_fonts() {
+        // Auf Rechnern ohne Schriftordner (z. B. manche CI-Container) leer
+        let cat = system_font_catalog();
+        if cfg!(windows) {
+            assert!(
+                cat.iter().any(|(f, _)| f == "Arial"),
+                "{} Einträge",
+                cat.len()
+            );
+        }
+    }
+
+    #[test]
+    fn compiles_hebrew_text() {
+        let doc = compile(
+            "#set text(font: \"Libertinus Serif\")\nשָׁלוֹם 5787",
+            &Fonts::bundled(),
+            &[],
+        )
+        .unwrap();
+        assert_eq!(doc.page_count(), 1);
+        assert!(to_pdf(&doc).unwrap().starts_with(b"%PDF"));
+    }
 }

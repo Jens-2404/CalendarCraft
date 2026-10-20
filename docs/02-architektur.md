@@ -258,6 +258,15 @@ Folgen und Auflagen:
 - Die Spikes nutzen Windows-Schriften (Times New Roman). Für die App werden freie Schriften (OFL) mit Nikud-Unterstützung eingebunden; Auswahl und Herkunft werden in Phase 4 dokumentiert.
 - Die Vorlage im Spike lief auf A4 über den Seitenrand (Zeilenhöhen falsch verteilt). Das ist ein Vorlagenfehler, kein Engine-Problem, zeigt aber: Vorlagen brauchen Snapshot-Tests je Format.
 
+Umsetzung (18.10.2026): Der Satz läuft in einem eigenen Web Worker.
+
+- `apps/worker` (Binary `cc-worker`) enthält `cc-render` und `cc-templates::settings::typst_source`. Trunk baut ihn über `data-type="worker"` und `data-loader-shim` in apps/web/index.html als eigenes Modul; die Dateien heißen ohne Prüfsumme `cc-worker_loader.js`, `cc-worker.js` und `cc-worker_bg.wasm`, damit die Oberfläche den Worker unter festem Namen starten kann.
+- Die Nachrichten stehen in `crates/cc-worker-protocol`: Aufträge `State`, `AddFonts`, `SetPhotos`, `Render`, `Page`, `Pdf`, Antworten mit derselben Kennung. Steuerdaten gehen als JSON, Schriften, Fotos und PDF als übergebene `ArrayBuffer` (keine Kopie, kein Base64).
+- Der Worker hält Schriften, Fotos und das zuletzt gesetzte Dokument. Seitenwechsel und PDF brauchen deshalb keinen neuen Satz, und der Typst-Cache bleibt über die ganze Sitzung warm.
+- Die Oberfläche (`cc-ui`) hängt nicht mehr von `cc-render` ab. Beim Neusetzen zählt nur die Antwort auf den letzten Auftrag; ältere Antworten werden verworfen.
+- Desktop: Die Tauri-WebView startet denselben Worker. Systemschriften lädt die Oberfläche über die Befehle `system_fonts` und `load_font` und gibt die Bytes an den Worker; das PDF holt sie vom Worker und speichert es über `save_pdf`. Abweichend von Abschnitt 6 (nativer Satz im Tauri-Backend) setzen damit beide Umgebungen im Worker.
+- Größen (Release, gzip -9): Oberfläche 178 KB, Worker 10,5 MB. Die CI misst beide getrennt.
+
 ### ADR-003: ICU4X als Kalenderbasis mit unabhängiger Gegenprüfung
 
 Status: vorgeschlagen.

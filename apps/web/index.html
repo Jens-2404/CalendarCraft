@@ -5,6 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CalendarCraft</title>
     <link data-trunk rel="rust" data-bin="cc-web" data-wasm-opt="z" />
+    <!-- Satz-Worker mit Typst, getrennt von der Oberfläche (ADR-002) -->
+    <link
+      data-trunk
+      rel="rust"
+      href="../worker/Cargo.toml"
+      data-bin="cc-worker"
+      data-type="worker"
+      data-loader-shim
+      data-wasm-opt="z"
+    />
     <link data-trunk rel="css" href="style.css" />
   </head>
   <body>

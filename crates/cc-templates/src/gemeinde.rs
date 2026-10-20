@@ -10,8 +10,8 @@ use cc_calendar::{Day, gregorian_from_day, hebrew_year_days};
 use cc_holidays::{DayInfo, german, year_days};
 
 use crate::common::{
-    GREG_MONTHS, LEGEND, TYPST_TIME_FN, WD_DE, WD_HE, jewish_fill, jewish_row, month_name_de,
-    pessach_footnote, q,
+    DAY_FILL, GREG_MONTHS, LEGEND, TYPST_TIME_FN, WD_DE, WD_HE, jewish_fill, jewish_row,
+    month_name_de, pessach_footnote, q,
 };
 pub use crate::common::{Paper, Style};
 use crate::times::{DayTimes, day_times};
@@ -47,6 +47,8 @@ pub struct Options {
     pub profile: CommunityProfile,
     pub location: Location,
     pub zmanim: Profile,
+    /// Bundesland für die staatlichen Feiertage
+    pub region: german::State,
 }
 
 impl Default for Options {
@@ -57,6 +59,7 @@ impl Default for Options {
             profile: CommunityProfile::default(),
             location: Location::frankfurt(),
             zmanim: Profile::frankfurt(),
+            region: german::State::Hessen,
         }
     }
 }
@@ -117,7 +120,7 @@ fn columns(days: &[DayInfo]) -> Vec<Column> {
 
 fn row(d: &DayInfo, t: &DayTimes) -> String {
     let j = jewish_row(d, t);
-    let fill = jewish_fill(d).map_or("none".to_string(), |c| format!("rgb({})", q(c)));
+    let fill = format!("rgb({})", q(jewish_fill(d).unwrap_or(DAY_FILL)));
     format!(
         "r(fill: {fill}, gd: {}, wd: {}, top: {}, name: {}, sub: {}, time: {}, tk: {}, candle: {}, hnum: {}, hwd: {}, rc: {}, omer: {}, ctr: {}, bold: {})\n",
         q(&d.gregorian.2.to_string()),
@@ -138,8 +141,8 @@ fn row(d: &DayInfo, t: &DayTimes) -> String {
 }
 
 /// "3. Oktober, 25.–26. Dezember, 1. Januar"
-pub(crate) fn state_holidays_text(from: Day, to: Day) -> String {
-    let hs = german::holidays_hesse_between(from, to);
+pub(crate) fn state_holidays_text(from: Day, to: Day, region: german::State) -> String {
+    let hs = german::holidays_between(from, to, region);
     let mut parts: Vec<String> = Vec::new();
     let mut i = 0;
     while i < hs.len() {
@@ -196,7 +199,7 @@ pub fn typst_source(year: i32, o: &Options) -> String {
 #let RW = 7.4mm * S
 #let r(fill: none, gd: "", wd: "", top: "", name: "", sub: "", time: "", tk: "", candle: false, hnum: "", hwd: "", rc: "", omer: "", ctr: false, bold: false) = block(
   width: 100%, height: ROWH, fill: fill, clip: true,
-  stroke: (bottom: 0.12pt * S + luma(190)), inset: (x: 0.5mm * S, y: 0pt),
+  stroke: (bottom: 0.3pt * S + luma(165)), inset: (x: 0.5mm * S, y: 0pt),
   {{
     set par(leading: 0.1em, spacing: 0pt)
     grid(
@@ -321,8 +324,9 @@ pub fn typst_source(year: i32, o: &Options) -> String {
             &[
                 LEGEND.to_string(),
                 format!(
-                    "Staatliche Feiertage {label}: {}",
-                    state_holidays_text(from, to)
+                    "Staatliche Feiertage {} {label}: {}",
+                    o.region.name(),
+                    state_holidays_text(from, to, o.region)
                 ),
                 footnote,
             ],

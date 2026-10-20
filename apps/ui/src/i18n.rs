@@ -15,7 +15,6 @@ pub enum Text {
     GregorianDate,
     Error,
     Language,
-    ComingSoon,
     HostBrowser,
     HostDesktop,
 }
@@ -46,11 +45,11 @@ impl Lang {
     pub fn text(self, key: Text) -> &'static str {
         use Text::*;
         match (self, key) {
-            (Lang::De, Calculator) => "Rechner",
-            (Lang::En, Calculator) => "Calculator",
+            (Lang::De, Calculator) => "Datumsrechner",
+            (Lang::En, Calculator) => "Date calculator",
             (Lang::He, Calculator) => "מחשבון",
-            (Lang::De, CreateCalendar) => "Kalender erstellen",
-            (Lang::En, CreateCalendar) => "Create calendar",
+            (Lang::De, CreateCalendar) => "Kalender gestalten",
+            (Lang::En, CreateCalendar) => "Design calendar",
             (Lang::He, CreateCalendar) => "יצירת לוח שנה",
             (Lang::De, GregorianDate) => "Gregorianisches Datum",
             (Lang::En, GregorianDate) => "Gregorian date",
@@ -61,11 +60,6 @@ impl Lang {
             (Lang::De, Language) => "Sprache",
             (Lang::En, Language) => "Language",
             (Lang::He, Language) => "שפה",
-            (Lang::De, ComingSoon) => {
-                "Folgt in Phase 0 als Prototyp nach dem Vorbild Luach Pirsum."
-            }
-            (Lang::En, ComingSoon) => "Follows in phase 0 as a prototype modelled on Luach Pirsum.",
-            (Lang::He, ComingSoon) => "יגיע בשלב 0 כאב־טיפוס בהשראת לוח פרסום.",
             (Lang::De, HostBrowser) => "läuft im Browser",
             (Lang::En, HostBrowser) => "running in the browser",
             (Lang::He, HostBrowser) => "פועל בדפדפן",
