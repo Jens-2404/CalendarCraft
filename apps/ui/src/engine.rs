@@ -30,11 +30,16 @@ pub fn host() -> Host {
 fn tauri_invoke() -> Option<Function> {
     let window = web_sys::window()?;
     let tauri = Reflect::get(&window, &"__TAURI__".into()).ok()?;
-    let core = Reflect::get(tauri.dyn_ref::<Object>()?, &"core".into()).ok()?;
-    Reflect::get(core.dyn_ref::<Object>()?, &"invoke".into())
-        .ok()?
-        .dyn_into()
-        .ok()
+    // `core` ist ein ES-Modul-Namespace ohne Prototyp; `instanceof Object`
+    // (dyn_ref::<Object>) schlägt dafür fehl, daher nur `is_object` prüfen.
+    if !tauri.is_object() {
+        return None;
+    }
+    let core = Reflect::get(&tauri, &"core".into()).ok()?;
+    if !core.is_object() {
+        return None;
+    }
+    Reflect::get(&core, &"invoke".into()).ok()?.dyn_into().ok()
 }
 
 pub(crate) fn js_err(v: JsValue) -> String {
